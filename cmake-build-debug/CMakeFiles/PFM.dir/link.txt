@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libPFM.a  CMakeFiles/PFM.dir/rbf/pfm.cc.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libPFM.a
