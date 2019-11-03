@@ -1,0 +1,70 @@
+GNU gdb (GDB) Red Hat Enterprise Linux 7.6.1-114.el7
+Copyright (C) 2013 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-redhat-linux-gnu".
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>...
+Reading symbols from /home/xiangdez/cs222-fall19-team-39/rm/rmtest_12...done.
+[?1034h(gdb) break 47
+Breakpoint 1 at 0x405b2c: file rmtest_12.cc, line 47.
+(gdb) r
+Starting program: /home/xiangdez/cs222-fall19-team-39/rm/./rmtest_12 
+
+***** In RM Test case 12 *****
+Real Value: 1104
+Varchar size: 4
+VarChar Value: llll
+Integer Value: 1103
+
+
+Breakpoint 1, TEST_RM_12 (tableName="tbl_employee4") at rmtest_12.cc:47
+47	            free(buffer);
+Missing separate debuginfos, use: debuginfo-install glibc-2.17-292.el7.x86_64 libgcc-4.8.5-36.el7_6.2.x86_64 libstdc++-4.8.5-36.el7_6.2.x86_64
+(gdb) p j
+$1 = 0
+(gdb) c
+Continuing.
+Real Value: 1195
+Varchar size: 45
+VarChar Value: yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+Integer Value: 1194
+
+
+Breakpoint 1, TEST_RM_12 (tableName="tbl_employee4") at rmtest_12.cc:47
+47	            free(buffer);
+(gdb) p j
+$2 = 200
+(gdb) c
+Continuing.
+Real Value: 1395
+Varchar size: 45
+VarChar Value: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+Integer Value: 1394
+
+
+Breakpoint 1, TEST_RM_12 (tableName="tbl_employee4") at rmtest_12.cc:47
+47	            free(buffer);
+(gdb) p j
+$3 = 400
+(gdb) delete 1
+(gdb) c
+Continuing.
+Real Value: 1596
+Varchar size: 46
+VarChar Value: jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+Integer Value: 1595
+
+Real Value: 1797
+Varchar size: 47
+VarChar Value: ccccccccccccccccccccccccccccccccccccccccccccccc
+Integer Value: 1796
+
+Total number of tuples: 1000
+
+***** Test Case 12 Finished. The result will be examined. *****
+
+[Inferior 1 (process 22812) exited normally]
+(gdb) q

@@ -21,11 +21,16 @@ RC PagedFileManager::createFile(const std::string &fileName) {
     // we first open the file with read mode to see if there exists a file.
     FILE* file = fopen(fileName.c_str(), "r");
     // if file exists, we return error
-    if (file) return -1;
+    if (file) {
+        fclose(file);
+        return -1;
+    }
 
     file = fopen(fileName.c_str(), "w");
-    return file == nullptr ? -1 : 0;
 
+    if(file == nullptr) return -1;
+    fclose(file);
+    return 0;
 }
 
 RC PagedFileManager::destroyFile(const std::string &fileName) {
@@ -41,6 +46,8 @@ RC PagedFileManager::openFile(const std::string &fileName, FileHandle &fileHandl
 
     if (!file) return -1;
 
+    //load the counter information first
+    if(fileHandle.loadCounter(file) != 0) return -1;
     // filehandle was doing the operation on file
     if (fileHandle.addFile(file) == 0) return 0;
 
@@ -50,6 +57,9 @@ RC PagedFileManager::openFile(const std::string &fileName, FileHandle &fileHandl
 RC PagedFileManager::closeFile(FileHandle &fileHandle) {
     // if the file is currently not created, we return error.
     if(!fileHandle.getFile()) return -1;
+
+    //save the counter information first
+    if(fileHandle.saveCounter() != 0) return -1;
     // other wise we close the file handle
     if (fflush(fileHandle.getFile()) != 0) return -1;
     if (fclose(fileHandle.getFile()) != 0) return -1;
@@ -62,6 +72,7 @@ FileHandle::FileHandle() {
     writePageCounter = 0;
     appendPageCounter = 0;
     numberPageAmount = 0;
+        
 }
 
 FileHandle::~FileHandle() = default;
@@ -74,13 +85,12 @@ RC FileHandle::addFile(FILE* file) {
 }
 
 RC FileHandle::readPage(PageNum pageNum, void *data) {
-    if (!FileHandle::getFile()) return -1;
-    if (pageNum > FileHandle::numberPageAmount || pageNum < 0) return -1;
+    if(!FileHandle::getFile()) return -1;
+    if(pageNum+1 > FileHandle::numberPageAmount || pageNum < 0) return -1;
 
-
-    fseek(getFile(), (pageNum) * PAGE_SIZE, SEEK_SET);
-    if (fread(data, 1, PAGE_SIZE,getFile()) == PAGE_SIZE) {
-        // read the page
+    FILE* fptr = FileHandle::getFile();
+    fseek(fptr,PAGE_SIZE * (pageNum+1),SEEK_SET);
+    if (fread(data, sizeof(byte), PAGE_SIZE, fptr) == PAGE_SIZE) {
         FileHandle::readPageCounter++;
         return 0;
     }
@@ -89,11 +99,11 @@ RC FileHandle::readPage(PageNum pageNum, void *data) {
 
 RC FileHandle::writePage(PageNum pageNum, const void *data) {
     if(!FileHandle::getFile()) return -1;
-    if(pageNum > FileHandle::numberPageAmount || pageNum < 0) return -1;
-    
+    if(pageNum+1 > FileHandle::numberPageAmount || pageNum < 0) return -1;
+
     FILE* fptr = FileHandle::getFile();
    
-    fseek(fptr,PAGE_SIZE * (pageNum),SEEK_SET);
+    fseek(fptr,PAGE_SIZE * (pageNum+1),SEEK_SET);
     if (fwrite(data, sizeof(char), PAGE_SIZE, fptr) == PAGE_SIZE) {
         fflush(fptr);
         //increase the counter
@@ -108,6 +118,7 @@ RC FileHandle::appendPage(const void *data) {
     FILE* file = getFile();
     // allocate memory to data, still need to work on that part!!!!
     if (!data) return -1;
+    fseek(file,0,SEEK_END);
     int res = fwrite(data, sizeof(char), PAGE_SIZE, file);
     // write the data into the
     if ( res == PAGE_SIZE) {
@@ -124,6 +135,49 @@ FILE* FileHandle::getFile() {
     return this->file;
 }
 
+RC FileHandle::loadCounter(FILE* file){
+    fseek(file,0,SEEK_END);
+    int size = ftell(file);
+    unsigned* counters = (unsigned*)malloc(sizeof(unsigned)*4);
+    if(size == 0){ //New file, create hidden page first
+        
+        counters[0] = 0;
+        counters[1] = 0;
+        counters[2] = 0;
+        counters[3] = 0;
+        void *data = malloc(PAGE_SIZE);
+        memset(data,0,PAGE_SIZE);
+        memcpy(data,counters,sizeof(unsigned)*4);
+        int res = fwrite(data,sizeof(char),PAGE_SIZE,file);
+        if(res != PAGE_SIZE) return -1;
+        fflush(file);
+        free(data);
+    }
+    fseek(file,0,SEEK_SET);
+    fread(counters,sizeof(unsigned),4,file);
+    FileHandle::readPageCounter = counters[0];
+    FileHandle::writePageCounter = counters[1];
+    FileHandle::appendPageCounter = counters[2];
+    FileHandle::numberPageAmount = counters[3];
+    
+    free(counters);
+    return 0;
+}
+
+RC FileHandle::saveCounter(){
+    FILE* file = getFile();
+    fseek(file,0,SEEK_SET);
+    unsigned* counters = (unsigned*)malloc(sizeof(unsigned)*4);
+    counters[0] = FileHandle::readPageCounter;
+    counters[1] = FileHandle::writePageCounter;
+    counters[2] = FileHandle::appendPageCounter;
+    counters[3] = FileHandle::numberPageAmount;
+    fwrite(counters,sizeof(unsigned),4,file);
+    free(counters);
+    return 0; 
+
+}
+
 unsigned FileHandle::getNumberOfPages() {
     return numberPageAmount >= 0 ? numberPageAmount : -1;
 }
@@ -137,3 +191,4 @@ RC FileHandle::collectCounterValues(unsigned &readPageCount, unsigned &writePage
 
     return 0;
 }
+

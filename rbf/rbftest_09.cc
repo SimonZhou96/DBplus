@@ -46,7 +46,6 @@ int RBFTest_9(RecordBasedFileManager &rbfm, vector<RID> &rids, vector<int> &size
              << " Attr Len: " << i.length << endl;
     }
     cout << endl;
-
     // NULL field indicator
     int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(recordDescriptor.size());
     auto *nullsIndicator = (unsigned char *) malloc(nullFieldsIndicatorActualSize);

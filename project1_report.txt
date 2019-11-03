@@ -1,22 +1,34 @@
 1. Basic information
-Student ID : 
-Student Name : 
-OS (bit) :
-gcc version :
+Student ID : 76521043
+Student Name : MENG ZHOU
+OS (bit) : iOS
+gcc version : 4.2.1
+
+Student ID : 23122210
+Student Name : Xiangde Zeng
+OS (bit) : Ubuntu
+gcc version : 4.8.5
 
 
 2. Internal Record Format
 - Show your record format design and describe how your design satisfies O(1) field access. If not, just mention that you haven't implemented this feature.
+	The record is implemented as this: (nullIndicator) + (dataSegment).
+	For readRecord(), what we did is we use fseek() to pinpoint the start of the page where this record is in, and then we use the record offset we stored in page to copy the whole data segment into void * at one time. So its time complexity is O(1).
+	For insertRecord(), we will first check whether the last page has free spcae to insert a new record or not. If not, there will be a traverse fromm the first page to the end to check any available space to insert. If still not, we will append a new page to insert the data. We will use the previous record's offset and length to determine the position of the new record (the position is the head of the page if this is the first record.) Since we target the position using the offset, this operation cost O(1) to finish.
 - Describe how you store a VarChar field.
-
+	We implemented the VarChar strutrue as (lengthOfVarchar) + (varCharContent). We use a unsigned space to store the length of the varchar, and then use the length of the varchar space to store the data content
 
 3. Page Format
 - Show your page format design
-
+	-- hidden page
+	We use a hidden started from the beginning of the file whose size is 4096 Bytes. In which stores the counter values (i.e. readNumberOfPage, appendNumberOfPage, writeNumberOfPage, numberOfPage).
+	-- other pages
+	(records) + (records information) + (number of records) + (freeespace)
+	Meanwhile, in order to capture the information of records and free space quickly. We set a space at the end of each page to store the freespace, number of records and each records information. It looks like this  ...->record2Length -> record2Offset -> record1Length -> record1Offset -> NumbefOfRecords -> FreeSpace. So using fseek, we can easily find the information we want.
 
 4. Implementation Detail
 - Other implementation details goes here.
-
+	Inside the file handler there is a FILE pointer that can read or write the specific file with fread(), fwrite() and fseek(). Using the FILE pointer, we can freely move the position of the file with the offset provided. This approach could help us easily handle the file with O(1) time complexity.
 
 5. Other (optional)
 - Freely use this section to tell us about things that are related to the project 1, but not related to the other sections (optional)

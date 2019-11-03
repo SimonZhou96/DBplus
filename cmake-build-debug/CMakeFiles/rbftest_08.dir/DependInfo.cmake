@@ -6,7 +6,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 set(CMAKE_DEPENDS_CHECK_CXX
   "/Users/mengzhou/CLionProjects/cs222-fall19-team-39/rbf/rbftest_08.cc" "/Users/mengzhou/CLionProjects/cs222-fall19-team-39/cmake-build-debug/CMakeFiles/rbftest_08.dir/rbf/rbftest_08.cc.o"
   )
-set(CMAKE_CXX_COMPILER_ID "AppleClang")
+set(CMAKE_CXX_COMPILER_ID "Clang")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX

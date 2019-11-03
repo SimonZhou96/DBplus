@@ -6,11 +6,18 @@ typedef int RC;
 typedef unsigned char byte;
 
 #define PAGE_SIZE 4096
+#define BUFFER_SIZE 3000
 
 #include <string>
 #include <climits>
 #include <cstdio>
 #include <vector>
+#include <cstring>
+#include <unordered_map> 
+#include <list>
+  
+using namespace std;
+
 class FileHandle;
 
 class PagedFileManager {
@@ -40,7 +47,9 @@ public:
     unsigned writePageCounter;
     unsigned appendPageCounter;
     unsigned numberPageAmount;
-    std::vector<const void *> pages;                                    // the data structure to store the starting address of the pages.
+
+    
+    
     FileHandle();                                                       // Default constructor
     ~FileHandle();                                                      // Destructor
 
@@ -52,8 +61,13 @@ public:
     unsigned getNumberOfPages();                                        // Get the number of pages in the file
     RC collectCounterValues(unsigned &readPageCount, unsigned &writePageCount,
                             unsigned &appendPageCount);                 // Put current counter values into variables
+
+    RC loadCounter(FILE* file);
+    RC saveCounter();
+
 private:
     FILE* file = nullptr;
+    
 };
 
 #endif

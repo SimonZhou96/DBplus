@@ -1,0 +1,2403 @@
+From e96d876b8d711e39f5afe993c06755ec1f345dab Mon Sep 17 00:00:00 2001
+From: Yicong-Huang <hyc541978023@gmail.com>
+Date: Wed, 9 Oct 2019 19:04:01 -0700
+Subject: [PATCH] added Project 1 private tests
+
+---
+ rbf/makefile       |  22 +-
+ rbf/rbftest_p1.cc  | 134 ++++++++
+ rbf/rbftest_p2.cc  | 149 +++++++++
+ rbf/rbftest_p2b.cc | 117 +++++++
+ rbf/rbftest_p2c.cc | 116 +++++++
+ rbf/rbftest_p3.cc  | 150 +++++++++
+ rbf/rbftest_p3b.cc | 184 +++++++++++
+ rbf/rbftest_p4.cc  | 195 ++++++++++++
+ rbf/rbftest_p5.cc  | 195 ++++++++++++
+ rbf/rbftest_p6.cc  | 139 +++++++++
+ rbf/test_util.h    | 752 +++++++++++++++++++++++++++++++++++++++++----
+ 11 files changed, 2086 insertions(+), 67 deletions(-)
+ create mode 100644 rbf/rbftest_p1.cc
+ create mode 100644 rbf/rbftest_p2.cc
+ create mode 100644 rbf/rbftest_p2b.cc
+ create mode 100644 rbf/rbftest_p2c.cc
+ create mode 100644 rbf/rbftest_p3.cc
+ create mode 100644 rbf/rbftest_p3b.cc
+ create mode 100644 rbf/rbftest_p4.cc
+ create mode 100644 rbf/rbftest_p5.cc
+ create mode 100644 rbf/rbftest_p6.cc
+
+diff --git a/rbf/makefile b/rbf/makefile
+index 33a00c1..9567c0d 100644
+--- a/rbf/makefile
++++ b/rbf/makefile
+@@ -1,6 +1,6 @@
+ include ../makefile.inc
+ 
+-all: librbf.a rbftest_01 rbftest_02 rbftest_03 rbftest_04 rbftest_05 rbftest_06 rbftest_07 rbftest_08 rbftest_08b rbftest_09 rbftest_10 rbftest_11 rbftest_12 rbftest_update rbftest_delete
++all: librbf.a rbftest_01 rbftest_02 rbftest_03 rbftest_04 rbftest_05 rbftest_06 rbftest_07 rbftest_08 rbftest_08b rbftest_09 rbftest_10 rbftest_11 rbftest_12 rbftest_update rbftest_delete rbftest_p1 rbftest_p2 rbftest_p2b rbftest_p2c rbftest_p3 rbftest_p3b rbftest_p4 rbftest_p5 rbftest_p6
+ 
+ # c file dependencies
+ pfm.o: pfm.h
+@@ -25,6 +25,15 @@ rbftest_11.o: pfm.h rbfm.h
+ rbftest_12.o: pfm.h rbfm.h
+ rbftest_update.o: pfm.h rbfm.h
+ rbftest_delete.o: pfm.h rbfm.h
++rbftest_p1.o: pfm.h rbfm.h
++rbftest_p2.o: pfm.h rbfm.h
++rbftest_p2b.o: pfm.h rbfm.h
++rbftest_p2c.o: pfm.h rbfm.h
++rbftest_p3.o: pfm.h rbfm.h
++rbftest_p3b.o: pfm.h rbfm.h
++rbftest_p4.o: pfm.h rbfm.h
++rbftest_p5.o: pfm.h rbfm.h
++rbftest_p6.o: pfm.h rbfm.h
+ 
+ # binary dependencies
+ rbftest_01: rbftest_01.o librbf.a $(CODEROOT)/rbf/librbf.a
+@@ -42,6 +51,15 @@ rbftest_11: rbftest_11.o librbf.a $(CODEROOT)/rbf/librbf.a
+ rbftest_12: rbftest_12.o librbf.a $(CODEROOT)/rbf/librbf.a
+ rbftest_update: rbftest_update.o librbf.a $(CODEROOT)/rbf/librbf.a
+ rbftest_delete: rbftest_delete.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p1: rbftest_p1.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p2: rbftest_p2.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p2b: rbftest_p2b.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p2c: rbftest_p2c.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p3: rbftest_p3.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p3b: rbftest_p3b.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p4: rbftest_p4.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p5: rbftest_p5.o librbf.a $(CODEROOT)/rbf/librbf.a
++rbftest_p6: rbftest_p6.o librbf.a $(CODEROOT)/rbf/librbf.a
+ 
+ # dependencies to compile used libraries
+ .PHONY: $(CODEROOT)/rbf/librbf.a
+@@ -50,4 +68,4 @@ $(CODEROOT)/rbf/librbf.a:
+ 
+ .PHONY: clean
+ clean:
+-	-rm rbftest_01 rbftest_02 rbftest_03 rbftest_04 rbftest_05 rbftest_06 rbftest_07 rbftest_08 rbftest_08b rbftest_09 rbftest_10 rbftest_11 rbftest_12 rbftest_update rbftest_delete *.a *.o *~
++	-rm rbftest_01 rbftest_02 rbftest_03 rbftest_04 rbftest_05 rbftest_06 rbftest_07 rbftest_08 rbftest_08b rbftest_09 rbftest_10 rbftest_11 rbftest_12 rbftest_update rbftest_delete *.a *.o *~  rbftest_p1 rbftest_p2 rbftest_p2b rbftest_p2c rbftest_p3 rbftest_p3b rbftest_p4 rbftest_p5 rbftest_p6 test_private*
+diff --git a/rbf/rbftest_p1.cc b/rbf/rbftest_p1.cc
+new file mode 100644
+index 0000000..9a8324d
+--- /dev/null
++++ b/rbf/rbftest_p1.cc
+@@ -0,0 +1,134 @@
++#include <iostream>
++#include <cassert>
++#include <cstdlib>
++#include <cstring>
++#include <stdexcept>
++#include <cstdio>
++
++#include "pfm.h"
++#include "rbfm.h"
++#include "test_util.h"
++
++int RBFTest_private_1(RecordBasedFileManager &rbfm) {
++    // Checks whether VarChar is implemented correctly or not.
++    //
++    // Functions tested
++    // 1. Create Two Record-Based File
++    // 2. Open Two Record-Based File
++    // 3. Insert Multiple Records Into Two files
++    // 4. Close Two Record-Based File
++    // 5. Compare The File Sizes
++    // 6. Destroy Two Record-Based File
++    std::cout << std::endl << "***** In RBF Test Case Private 1 *****" << std::endl;
++
++    RC rc;
++    std::string fileName1 = "test_private_1a";
++    std::string fileName2 = "test_private_1b";
++
++    // Create a file named "test_private_1a"
++    rc = rbfm.createFile(fileName1);
++    assert(rc == success && "Creating a file should not fail.");
++
++    rc = createFileShouldSucceed(fileName1);
++    assert(rc == success && "Creating a file failed.");
++
++    // Create a file named "test_private_1b"
++    rc = rbfm.createFile(fileName2);
++    assert(rc == success && "Creating a file should not fail.");
++
++    rc = createFileShouldSucceed(fileName2);
++    assert(rc == success && "Creating a file failed.");
++
++    // Open the file "test_private_1a"
++    FileHandle fileHandle1;
++    rc = rbfm.openFile(fileName1, fileHandle1);
++    assert(rc == success && "Opening a file should not fail.");
++
++    // Open the file "test_private_1b"
++    FileHandle fileHandle2;
++    rc = rbfm.openFile(fileName2, fileHandle2);
++    assert(rc == success && "Opening a file should not fail.");
++
++    RID rid;
++    void *record = malloc(PAGE_SIZE);
++    int numRecords = 12000;
++
++    // Each varchar field length - 200
++    std::vector<Attribute> recordDescriptor1;
++    createRecordDescriptorForTwitterUser(recordDescriptor1);
++
++    // NULL field indicator
++    int nullFieldsIndicatorActualSize1 = getActualByteForNullsIndicator(recordDescriptor1.size());
++    auto *nullsIndicator = (unsigned char *) malloc(nullFieldsIndicatorActualSize1);
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize1);
++
++    // Each varchar field length - 800
++    std::vector<Attribute> recordDescriptor2;
++    createRecordDescriptorForTwitterUser2(recordDescriptor2);
++
++    bool equalSizes;
++
++    // Insert records into file
++    for (int i = 0; i < numRecords; i++) {
++        // Test insert Record
++        int size = 0;
++        memset(record, 0, 3000);
++        prepareLargeRecordForTwitterUser(recordDescriptor1.size(), nullsIndicator, i, record, &size);
++
++        rc = rbfm.insertRecord(fileHandle1, recordDescriptor1, record, rid);
++        assert(rc == success && "Inserting a record should not fail.");
++
++        rc = rbfm.insertRecord(fileHandle2, recordDescriptor2, record, rid);
++        assert(rc == success && "Inserting a record should not fail.");
++
++        if (i % 1000 == 0 && i != 0) {
++            std::cout << i << "/" << numRecords << " records are inserted." << std::endl;
++            compareFileSizes(fileName1, fileName2);
++        }
++    }
++    // Close the file "test_private_1a"
++    rc = rbfm.closeFile(fileHandle1);
++    assert(rc == success && "Closing a file should not fail.");
++
++    // Close the file "test_private_1b"
++    rc = rbfm.closeFile(fileHandle2);
++    assert(rc == success && "Closing a file should not fail.");
++
++    free(record);
++
++    std::cout << std::endl;
++    equalSizes = compareFileSizes(fileName1, fileName2);
++
++    rc = rbfm.destroyFile(fileName1);
++    assert(rc == success && "Destroying a file should not fail.");
++
++    rc = destroyFileShouldSucceed(fileName1);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    rc = rbfm.destroyFile(fileName2);
++    assert(rc == success && "Destroying a file should not fail.");
++
++    rc = destroyFileShouldSucceed(fileName1);
++    assert(rc == success && "Destroying the file should not fail.");
++    
++    free(nullsIndicator);
++
++    if (!equalSizes) {
++        std::cout << "Variable length Record is not properly implemented." << std::endl;
++        std::cout << "**** [FAIL] RBF Test Private 1 failed. Two files are of different sizes. *****" << std::endl;
++
++        return -1;
++    }
++
++    std::cout << "***** RBF Test Case Private 1 Finished. The result will be examined! *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++
++    remove("test_private_1a");
++    remove("test_private_1b");
++
++    return RBFTest_private_1(RecordBasedFileManager::instance());
++}
+\ No newline at end of file
+diff --git a/rbf/rbftest_p2.cc b/rbf/rbftest_p2.cc
+new file mode 100644
+index 0000000..385e3b6
+--- /dev/null
++++ b/rbf/rbftest_p2.cc
+@@ -0,0 +1,149 @@
++#include <iostream>
++#include <cassert>
++#include <cstdlib>
++#include <cstring>
++#include <stdexcept>
++#include <cstdio>
++
++#include "pfm.h"
++#include "rbfm.h"
++#include "test_util.h"
++
++int RBFTest_private_2(RecordBasedFileManager &rbfm) {
++    // Functions Tested:
++    // 1. Create File - RBFM
++    // 2. Open File
++    // 3. insertRecord() - with an empty string field (not NULL)
++    // 4. insertRecord() - with a NULL string field
++    // 5. Close File
++    // 6. Destroy File
++    std::cout << "***** In RBF Test Case Private 2 *****" << std::endl;
++
++    RC rc;
++    std::string fileName = "test_private_2";
++
++    // Create a file named "test_private_2"
++    rc = rbfm.createFile(fileName);
++    assert(rc == success && "Creating a file should not fail.");
++
++    rc = createFileShouldSucceed(fileName);
++    assert(rc == success && "Creating a file should not fail.");
++
++    // Open the file "test_private_2"
++    FileHandle fileHandle;
++    rc = rbfm.openFile(fileName, fileHandle);
++    assert(rc == success && "Opening a file should not fail.");
++
++    RID rid;
++    unsigned recordSize = 0;
++    void *record = malloc(2000);
++    void *returnedData = malloc(2000);
++
++    std::vector<Attribute> recordDescriptorForTweetMessage;
++    createRecordDescriptorForTweetMessage(recordDescriptorForTweetMessage);
++
++    // NULL field indicator
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(recordDescriptorForTweetMessage.size());
++    unsigned char nullsIndicator[nullFieldsIndicatorActualSize];
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize);
++
++    // Insert a record into a file - referred_topics is an empty string - "", not null value.
++    prepareRecordForTweetMessage(recordDescriptorForTweetMessage.size(),
++                                 nullsIndicator, 1234, 999, 0, "", 0, "", 43.21, 12.34, record,
++                                 &recordSize);
++    rc = rbfm.insertRecord(fileHandle, recordDescriptorForTweetMessage, record,
++                           rid);
++
++    assert(rc == success && "Inserting a record should not fail.");
++
++    // Given the rid, read the record from file
++    rc = rbfm.readRecord(fileHandle, recordDescriptorForTweetMessage, rid,
++                         returnedData);
++    assert(rc == success && "Reading a record should not fail.");
++
++    // An empty string should be printed for the referred_topics field.
++    std::cout << std::endl << "Should print empty strings:" << std::endl;
++    rbfm.printRecord(recordDescriptorForTweetMessage, returnedData);
++    std::cout << std::endl;
++
++
++    // Compare whether the two memory blocks are the same
++    if (memcmp(record, returnedData, recordSize) != 0) {
++        std::cout
++                << "***** [FAIL] Test Case Private 2 Failed on Reading Empty String Record! *****"
++                << std::endl << std::endl;
++        free(record);
++        free(returnedData);
++        return -1;
++    }
++
++    memset(record, 0, 2000);
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize);
++    setAttrNull(nullsIndicator, 2, true);
++    setAttrNull(nullsIndicator, 3, true);
++    // Insert a record
++    prepareRecordForTweetMessage(recordDescriptorForTweetMessage.size(),
++                                 nullsIndicator, 1234, 999, 0, "", 0, "", 43.21, 12.34, record,
++                                 &recordSize);
++
++    rc = rbfm.insertRecord(fileHandle, recordDescriptorForTweetMessage, record,
++                           rid);
++    assert(rc == success && "Inserting a record should not fail.");
++
++    // Given the rid, read the record from file
++    rc = rbfm.readRecord(fileHandle, recordDescriptorForTweetMessage, rid,
++                         returnedData);
++    assert(rc == success && "Reading a record should not fail.");
++
++    // An NULL should be printed for the referred_topics field.
++    std::cout << "Should print NULL:" << std::endl;
++    rbfm.printRecord(recordDescriptorForTweetMessage, returnedData);
++    std::cout << std::endl;
++
++    // Compare whether the two memory blocks are the same
++    if (memcmp(record, returnedData, recordSize) != 0) {
++        std::cout
++                << "***** [FAIL] Test Case Private 2 Failed on Reading Nullable Record! *****"
++                << std::endl << std::endl;
++        free(record);
++        free(returnedData);
++        return -1;
++    }
++
++    // Close the file "test_private_2"
++    rc = rbfm.closeFile(fileHandle);
++    assert(rc == success && "Closing the file should not fail.");
++
++    int fsize = getFileSize(fileName);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        rbfm.destroyFile(fileName);
++        free(record);
++        free(returnedData);
++        free(nullsIndicator);
++        return -1;
++    }
++
++    // Destroy File
++    rc = rbfm.destroyFile(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    rc = destroyFileShouldSucceed(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    free(record);
++    free(returnedData);
++
++    std::cout
++            << "***** RBF Test Case Private 2 Finished. The result will be examined! *****"
++            << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++
++    remove("test_private_2");
++
++    return RBFTest_private_2(RecordBasedFileManager::instance());
++}
+\ No newline at end of file
+diff --git a/rbf/rbftest_p2b.cc b/rbf/rbftest_p2b.cc
+new file mode 100644
+index 0000000..65eb584
+--- /dev/null
++++ b/rbf/rbftest_p2b.cc
+@@ -0,0 +1,117 @@
++#include <iostream>
++#include <fstream>
++#include <string>
++#include <cassert>
++#include <sys/stat.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdexcept>
++#include <stdio.h>
++
++#include "pfm.h"
++#include "rbfm.h"
++#include "test_util.h"
++
++using namespace std;
++
++int RBFTest_private_2b(RecordBasedFileManager &rbfm) {
++    // Functions Tested:
++    // 1. Create File - RBFM
++    // 2. Open File
++    // 3. insertRecord() - with all NULLs
++    // 4. Close File
++    // 5. Destroy File
++    std::cout << "***** In RBF Test Case private 2b *****" << std::endl;
++
++    RC rc;
++    string fileName = "test_private_2b";
++
++    // Create a file named "test_private_2b"
++    rc = rbfm.createFile(fileName);
++    assert(rc == success && "Creating a file should not fail.");
++
++    rc = createFileShouldSucceed(fileName);
++    assert(rc == success && "Creating a file should not fail.");
++
++    // Open the file "test_private_2b"
++    FileHandle fileHandle;
++    rc = rbfm.openFile(fileName, fileHandle);
++    assert(rc == success && "Opening a file should not fail.");
++
++    RID rid;
++    unsigned recordSize = 0;
++    void *record = malloc(2000);
++    void *returnedData = malloc(2000);
++
++    vector<Attribute> recordDescriptorForTweetMessage;
++    createRecordDescriptorForTweetMessage(recordDescriptorForTweetMessage);
++
++    // NULL field indicator
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(recordDescriptorForTweetMessage.size());
++    unsigned char nullsIndicator[nullFieldsIndicatorActualSize];
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize);
++
++    // set all fields as NULL
++    nullsIndicator[0] = 252; // 11111100
++
++    // Insert a record into a file
++    prepareRecordForTweetMessage(recordDescriptorForTweetMessage.size(),
++                                 nullsIndicator, 1234, 999, 0, "wildfires", 0,
++                                 "Curious ... did the amazon wildfires stop ?", 43.21, 12.34, record,
++                                 &recordSize);
++    rc = rbfm.insertRecord(fileHandle, recordDescriptorForTweetMessage, record, rid);
++    assert(rc == success && "Inserting a record should not fail.");
++
++    // Given the rid, read the record from file
++    rc = rbfm.readRecord(fileHandle, recordDescriptorForTweetMessage, rid, returnedData);
++    assert(rc == success && "Reading a record should not fail.");
++
++    // An empty string should be printed for the referred_topics field.
++    std::cout << std::endl << "Should print NULLs:" << std::endl;
++    rbfm.printRecord(recordDescriptorForTweetMessage, returnedData);
++
++    // Compare whether the two memory blocks are the same
++    if (memcmp(record, returnedData, recordSize) != 0) {
++        std::cout << "***** [FAIL] Test Case private 2b Failed! *****" << std::endl << std::endl;
++        free(record);
++        free(returnedData);
++        return -1;
++    }
++
++    // Close the file "test_private_2b"
++    rc = rbfm.closeFile(fileHandle);
++    assert(rc == success && "Closing the file should not fail.");
++
++    std::cout << std::endl;
++    int fsize = getFileSize(fileName);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        rbfm.destroyFile(fileName);
++        free(record);
++        free(returnedData);
++        return -1;
++    }
++
++    // Destroy File
++    rc = rbfm.destroyFile(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    rc = destroyFileShouldSucceed(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    free(record);
++    free(returnedData);
++
++    std::cout << "***** RBF Test Case private 2b Finished. The result will be examined! *****" << std::endl
++              << std::endl;
++
++    return 0;
++}
++
++int main() {
++
++    remove("test_private_2b");
++
++    return RBFTest_private_2b(RecordBasedFileManager::instance());
++
++}
+\ No newline at end of file
+diff --git a/rbf/rbftest_p2c.cc b/rbf/rbftest_p2c.cc
+new file mode 100644
+index 0000000..1b2c44b
+--- /dev/null
++++ b/rbf/rbftest_p2c.cc
+@@ -0,0 +1,116 @@
++#include <iostream>
++#include <cassert>
++#include <cstdlib>
++#include <cstring>
++#include <stdexcept>
++#include <cstdio>
++
++#include "pfm.h"
++#include "rbfm.h"
++#include "test_util.h"
++
++int RBFTest_private_2c(RecordBasedFileManager &rbfm) {
++    // Functions Tested:
++    // 1. Create File - RBFM
++    // 2. Open File
++    // 3. insertRecord() - with multiple NULLs
++    // 4. Close File
++    // 5. Destroy File
++    std::cout << "***** In RBF Test Case Private 2c *****" << std::endl;
++
++    RC rc;
++    std::string fileName = "test_private_2c";
++
++    // Create a file named "test_private_2c"
++    rc = rbfm.createFile(fileName);
++    assert(rc == success && "Creating the file should not fail.");
++
++    rc = createFileShouldSucceed(fileName);
++    assert(rc == success && "Creating the file should not fail.");
++
++    // Open the file "test_private_2c"
++    FileHandle fileHandle;
++    rc = rbfm.openFile(fileName, fileHandle);
++    assert(rc == success && "Opening the file should not fail.");
++
++    RID rid;
++    int recordSize = 0;
++    void *record = malloc(2000);
++    void *returnedData = malloc(2000);
++
++    std::vector<Attribute> recordDescriptor;
++    createLargeRecordDescriptor3(recordDescriptor);
++
++    // NULL field indicator
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(recordDescriptor.size());
++    unsigned char nullsIndicator[nullFieldsIndicatorActualSize];
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize);
++    memset(record, 0, 2000);
++
++    // Setting the following bytes as NULL
++    // The entire byte representation is: 100011011000001111001000
++    //                                    123456789012345678901234
++    nullsIndicator[0] = 141; // 10001101
++    nullsIndicator[1] = 131; // 10000011
++    nullsIndicator[2] = 200; // 11001000
++
++    // Insert a record into a file
++    prepareLargeRecord3(recordDescriptor.size(), nullsIndicator, 7, record, &recordSize);
++
++    // Values of attr0, attr13, and attr20 should be NULL.
++    std::cout << std::endl << "Data to be inserted:" << std::endl;
++    rbfm.printRecord(recordDescriptor, record);
++
++    rc = rbfm.insertRecord(fileHandle, recordDescriptor, record, rid);
++    assert(rc == success && "Inserting a record should not fail.");
++
++    // Given the rid, read the record from file
++    rc = rbfm.readRecord(fileHandle, recordDescriptor, rid, returnedData);
++    assert(rc == success && "Reading a record should not fail.");
++
++    // Values of multiple fields should be NULL.
++    std::cout << std::endl << "Returned Data:" << std::endl;
++    rbfm.printRecord(recordDescriptor, returnedData);
++
++    // Compare whether the two memory blocks are the same
++    if (memcmp(record, returnedData, recordSize) != 0) {
++        std::cout << "***** [FAIL] Test Case Private 2c Failed! *****" << std::endl << std::endl;
++        free(record);
++        free(returnedData);
++        rbfm.closeFile(fileHandle);
++        rbfm.destroyFile(fileName);
++        return -1;
++    }
++
++    // Close the file "test_private_2c"
++    rc = rbfm.closeFile(fileHandle);
++    assert(rc == success && "Closing the file should not fail.");
++
++    int fsize = getFileSize(fileName);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        return -1;
++    }
++
++    // Destroy File
++    rc = rbfm.destroyFile(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    rc = destroyFileShouldSucceed(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    free(record);
++    free(returnedData);
++
++    std::cout << "***** RBF Test Case Private 2c Finished. The result will be examined! *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++                    
++    remove("test_private_2c");
++
++    return RBFTest_private_2c(RecordBasedFileManager::instance());
++
++}
+\ No newline at end of file
+diff --git a/rbf/rbftest_p3.cc b/rbf/rbftest_p3.cc
+new file mode 100644
+index 0000000..013bd8c
+--- /dev/null
++++ b/rbf/rbftest_p3.cc
+@@ -0,0 +1,150 @@
++#include <iostream>
++#include <cassert>
++#include <cstdlib>
++#include <cstring>
++#include <stdexcept>
++#include <cstdio>
++
++#include "pfm.h"
++#include "rbfm.h"
++#include "test_util.h"
++
++int RBFTest_private_3(RecordBasedFileManager &rbfm) {
++    // Functions Tested:
++    // 1. Create File - RBFM
++    // 2. Open File
++    // 3. insertRecord() - a big sized record so that two records cannot fit in a page.
++    // 4. Close File
++    // 5. Destroy File
++    std::cout << std::endl << "***** In RBF Test Case Private 3 *****" << std::endl;
++
++    RC rc;
++    std::string fileName = "test_private_3";
++
++    unsigned readPageCount = 0;
++    unsigned writePageCount = 0;
++    unsigned appendPageCount = 0;
++    unsigned readPageCount1 = 0;
++    unsigned writePageCount1 = 0;
++    unsigned appendPageCount1 = 0;
++
++    // Create a file named "test_private_3"
++    rc = rbfm.createFile(fileName);
++    assert(rc == success && "Creating a file should not fail.");
++
++    rc = createFileShouldSucceed(fileName);
++    assert(rc == success && "Creating a file failed.");
++
++    // Open the file "test_private_3"
++    FileHandle fileHandle;
++    rc = rbfm.openFile(fileName, fileHandle);
++    assert(rc == success && "Opening the file should not fail.");
++
++    RID rid;
++    int recordSize = 0;
++    void *record = malloc(3000);
++    void *returnedData = malloc(3000);
++
++    std::vector<Attribute> recordDescriptor;
++    createLargeRecordDescriptor4(recordDescriptor);
++
++    // NULL field indicator
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(recordDescriptor.size());
++    unsigned char nullsIndicator[nullFieldsIndicatorActualSize];
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize);
++
++    int numRecords = 12;
++
++    // collect before counters
++    rc = fileHandle.collectCounterValues(readPageCount, writePageCount,
++                                         appendPageCount);
++    if (rc != success) {
++        std::cout
++                << "[FAIL] collectCounterValues() failed. Test Case Private 3 failed."
++                << std::endl;
++        rbfm.closeFile(fileHandle);
++        return -1;
++    }
++
++    for (int i = 0; i < numRecords; i++) {
++        // Insert a record into the file
++        prepareLargeRecord4(recordDescriptor.size(), nullsIndicator, 2061,
++                            record, &recordSize);
++
++        rc = rbfm.insertRecord(fileHandle, recordDescriptor, record, rid);
++        assert(rc == success && "Inserting a record should not fail.");
++
++        // collect after counters - 1
++        rc = fileHandle.collectCounterValues(readPageCount1, writePageCount1,
++                                             appendPageCount1);
++        if (rc != success) {
++            std::cout
++                    << "[FAIL] collectCounterValues() failed. Test Case Private 3 failed."
++                    << std::endl;
++            rbfm.closeFile(fileHandle);
++            return -1;
++        }
++
++        std::cout << "before:R W A - " << readPageCount << " " << writePageCount << " " << appendPageCount
++                  << " after:R W A - "
++                  << readPageCount1 << " " << writePageCount1 << " " << appendPageCount1 << std::endl;
++
++        if (appendPageCount1 <= appendPageCount) {
++            std::cout << "The implementation regarding appendPage() is not correct."
++                      << std::endl;
++            std::cout << "***** [FAIL] Test Case Private 3 Failed! *****" << std::endl;
++            rbfm.closeFile(fileHandle);
++            return -1;
++        }
++
++        // Given the rid, read the record from file
++        rc = rbfm.readRecord(fileHandle, recordDescriptor, rid, returnedData);
++        assert(rc == success && "Reading a record should not fail.");
++
++        // Compare whether the two memory blocks are the same
++        if (memcmp(record, returnedData, recordSize) != 0) {
++            std::cout << "***** [FAIL] Test Case Private 3 Failed! *****" << std::endl << std::endl;
++            free(record);
++            free(returnedData);
++            return -1;
++        }
++
++        readPageCount = readPageCount1;
++        writePageCount = writePageCount1;
++        appendPageCount = appendPageCount1;
++
++    }
++
++    // Close the file "test_private_3"
++    rc = rbfm.closeFile(fileHandle);
++    assert(rc == success && "Closing the file should not fail.");
++
++    int fsize = getFileSize(fileName);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        std::cout << "***** [FAIL] Test Case Private 3 Failed! *****" << std::endl
++                  << std::endl;
++        return -1;
++    }
++
++    // Destroy File
++    rc = rbfm.destroyFile(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    rc = destroyFileShouldSucceed(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    free(record);
++    free(returnedData);
++
++    std::cout << "***** RBF Test Case Private 3 Finished. The result will be examined. *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++
++    remove("test_private_3");
++
++    return RBFTest_private_3(RecordBasedFileManager::instance());
++}
+\ No newline at end of file
+diff --git a/rbf/rbftest_p3b.cc b/rbf/rbftest_p3b.cc
+new file mode 100644
+index 0000000..ca06411
+--- /dev/null
++++ b/rbf/rbftest_p3b.cc
+@@ -0,0 +1,184 @@
++#include <iostream>
++#include <cassert>
++#include <cstdlib>
++#include <cstring>
++#include <stdexcept>
++#include <cstdio>
++
++#include "pfm.h"
++#include "rbfm.h"
++#include "test_util.h"
++
++int RBFTest_private_3b(RecordBasedFileManager &rbfm) {
++    // Functions Tested:
++    // 1. Create File - RBFM
++    // 2. Open File
++    // 3. insertRecord() - checks if we can't find an enough space in the last page,
++    //                     the system checks from the beginning of the file.
++    // 4. Close File
++    // 5. Destroy File
++    std::cout << "***** In RBF Test Case Private 3b *****" << std::endl;
++
++    RC rc;
++    std::string fileName = "test_private_3b";
++
++    unsigned readPageCount = 0;
++    unsigned writePageCount = 0;
++    unsigned appendPageCount = 0;
++    unsigned readPageCount1 = 0;
++    unsigned writePageCount1 = 0;
++    unsigned appendPageCount1 = 0;
++    unsigned readPageCountDiff = 0;
++    unsigned writePageCountDiff = 0;
++    unsigned appendPageCountDiff = 0;
++
++    unsigned numberOfHeaderPages = 0;
++
++
++    // Create a file named "test_private_3b"
++    rc = rbfm.createFile(fileName);
++    assert(rc == success && "Creating a file should not fail.");
++
++    rc = createFileShouldSucceed(fileName);
++    assert(rc == success && "Creating a file failed.");
++
++    // Open the file "test_private_3b"
++    FileHandle fileHandle;
++    rc = rbfm.openFile(fileName, fileHandle);
++    assert(rc == success && "Opening the file should not fail.");
++
++    // Get the initial number of pages in the file.
++    // If it's greater than zero, we assume there is a directory.
++    numberOfHeaderPages = fileHandle.getNumberOfPages();
++
++    bool headerPageExists = numberOfHeaderPages > 0;
++
++    if (headerPageExists) {
++        std::cout << std::endl << "A header page exists." << std::endl;
++    }
++
++    RID rid;
++    int recordSize = 0;
++    void *record = malloc(3000);
++    void *returnedData = malloc(3000);
++
++    std::vector<Attribute> recordDescriptor;
++    createLargeRecordDescriptor4(recordDescriptor);
++
++    // NULL field indicator
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(recordDescriptor.size());
++    unsigned char nullsIndicator[nullFieldsIndicatorActualSize];
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize);
++
++    int numRecords = 50;
++
++    // Insert 50 records into the file
++    for (int i = 0; i < numRecords; i++) {
++        memset(record, 0, 3000);
++        prepareLargeRecord4(recordDescriptor.size(), nullsIndicator, 2060 + i, record, &recordSize);
++
++        rc = rbfm.insertRecord(fileHandle, recordDescriptor, record, rid);
++        assert(rc == success && "Inserting a record should not fail.");
++    }
++
++    // Collect before counters before doing one more insert
++    rc = fileHandle.collectCounterValues(readPageCount, writePageCount, appendPageCount);
++    if (rc != success) {
++        std::cout << "[FAIL] collectCounterValues() failed. Test Case Private 3b failed." << std::endl;
++        rbfm.closeFile(fileHandle);
++        rbfm.destroyFile(fileName);
++        free(record);
++        free(returnedData);
++        return -1;
++    }
++
++    // One more insertion
++    memset(record, 0, 3000);
++    prepareLargeRecord4(recordDescriptor.size(), nullsIndicator, 2160, record, &recordSize);
++
++    rc = rbfm.insertRecord(fileHandle, recordDescriptor, record, rid);
++    assert(rc == success && "Inserting a record should not fail.");
++
++    // Collect after counters
++    rc = fileHandle.collectCounterValues(readPageCount1, writePageCount1, appendPageCount1);
++    if (rc != success) {
++        std::cout << "[FAIL] collectCounterValues() failed. Test Case Private 3b failed." << std::endl;
++        rbfm.closeFile(fileHandle);
++        rbfm.destroyFile(fileName);
++        free(record);
++        free(returnedData);
++        return -1;
++    }
++
++    // Calculate the counter differences
++    readPageCountDiff = readPageCount1 - readPageCount;
++    appendPageCountDiff = appendPageCount1 - appendPageCount;
++    writePageCountDiff = writePageCount1 - writePageCount;
++
++    std::cout << "before:R W A - " << readPageCount << " " << writePageCount << " " << appendPageCount
++              << " after:R W A - "
++              << readPageCount1 << " " << writePageCount1 << " " << appendPageCount1 << std::endl;
++
++    // If a directory exists, then we need to read at least one page and append one page.
++    // Also, we need to update the directory structure. So, we need to have one write.
++    if (headerPageExists) {
++        if (readPageCountDiff < 1 || appendPageCountDiff < 1 || writePageCountDiff < 1) {
++            std::cout << "The implementation regarding insertRecord() is not correct." << std::endl;
++            std::cout << "***** [FAIL] Test Case Private 3b Failed! *****" << std::endl;
++            rbfm.closeFile(fileHandle);
++            rbfm.destroyFile(fileName);
++            free(record);
++            free(returnedData);
++            return -1;
++        }
++    } else {
++        // Each page can only contain one record. So, readPageCountDiff should be greater than 50
++        // since the system needs to go through all pages from the beginning.
++        if (readPageCountDiff < numRecords) {
++            std::cout << "The implementation regarding insertRecord() is not correct." << std::endl;
++            std::cout << "***** [FAIL] Test Case Private 3b Failed! *****" << std::endl;
++            rbfm.closeFile(fileHandle);
++            rbfm.destroyFile(fileName);
++            free(record);
++            free(returnedData);
++            return -1;
++        }
++    }
++
++
++    // Close the file "test_private_3b"
++    rc = rbfm.closeFile(fileHandle);
++    assert(rc == success && "Closing the file should not fail.");
++
++    int fsize = getFileSize(fileName);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        std::cout << "***** [FAIL] Test Case Private 3b Failed! *****" << std::endl << std::endl;
++        rbfm.destroyFile(fileName);
++        free(record);
++        free(returnedData);
++        return -1;
++    }
++
++    // Destroy File
++    rc = rbfm.destroyFile(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    rc = destroyFileShouldSucceed(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    free(record);
++    free(returnedData);
++
++    std::cout << "***** RBF Test Case Private 3b Finished. The result will be examined. *****" << std::endl
++              << std::endl;
++
++    return 0;
++}
++
++int main() {
++
++    remove("test_private_3b");
++
++    return RBFTest_private_3b(RecordBasedFileManager::instance());
++}
+\ No newline at end of file
+diff --git a/rbf/rbftest_p4.cc b/rbf/rbftest_p4.cc
+new file mode 100644
+index 0000000..fcd1bf0
+--- /dev/null
++++ b/rbf/rbftest_p4.cc
+@@ -0,0 +1,195 @@
++#include <iostream>
++#include <cassert>
++#include <cstdlib>
++#include <cstring>
++#include <stdexcept>
++#include <cstdio>
++
++#include "pfm.h"
++#include "rbfm.h"
++#include "test_util.h"
++
++int RBFTest_private_4(RecordBasedFileManager &rbfm) {
++    // Functions Tested:
++    // 1. Create a File - test_private_4a
++    // 2. Create a File - test_private_4b
++    // 3. Open test_private_4a
++    // 4. Open test_private_4b
++    // 5. Insert 60000 records into test_private_4a
++    // 6. Insert 60000 records into test_private_4b
++    // 7. Close test_private_4a
++    // 8. Close test_private_4b
++    std::cout << std::endl << "***** In RBF Test Case Private 4 ****" << std::endl;
++
++    RC rc;
++    std::string fileName = "test_private_4a";
++    std::string fileName2 = "test_private_4b";
++
++    // Create a file named "test_private_4a"
++    rc = rbfm.createFile(fileName);
++    assert(rc == success && "Creating a file should not fail.");
++
++    rc = createFileShouldSucceed(fileName);
++    assert(rc == success && "Creating a file should not fail.");
++
++    // Create a file named "test_private_4b"
++    rc = rbfm.createFile(fileName2);
++    assert(rc == success && "Creating a file should not fail.");
++
++    rc = createFileShouldSucceed(fileName2);
++    assert(rc == success && "Creating a file should not fail.");
++
++    // Open the file "test_private_4a"
++    FileHandle fileHandle;
++    rc = rbfm.openFile(fileName, fileHandle);
++    assert(rc == success && "Opening the file should not fail.");
++
++    // Open the file "test_private_4b"
++    FileHandle fileHandle2;
++    rc = rbfm.openFile(fileName2, fileHandle2);
++    assert(rc == success && "Opening the file should not fail.");
++
++    RID rid, rid2;
++    void *record = malloc(1000);
++    void *record2 = malloc(1000);
++    void *returnedData = malloc(1000);
++    void *returnedData2 = malloc(1000);
++    int numRecords = 60000;
++    int batchSize = 1000;
++
++    std::vector<Attribute> recordDescriptorForTwitterUser, recordDescriptorForTweetMessage;
++
++    createRecordDescriptorForTwitterUser(recordDescriptorForTwitterUser);
++    createRecordDescriptorForTweetMessage(recordDescriptorForTweetMessage);
++
++    // NULL field indicator
++
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(recordDescriptorForTwitterUser.size());
++    unsigned char nullsIndicator[nullFieldsIndicatorActualSize];
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize);
++
++    int nullFieldsIndicatorActualSize2 = getActualByteForNullsIndicator(recordDescriptorForTweetMessage.size());
++    unsigned char nullsIndicator2[nullFieldsIndicatorActualSize2];
++    memset(nullsIndicator2, 0, nullFieldsIndicatorActualSize2);
++
++    std::vector<RID> rids, rids2;
++    // Insert 50,000 records into the file - test_private_4a and test_private_4b
++    for (int i = 0; i < numRecords / batchSize; i++) {
++        for (int j = 0; j < batchSize; j++) {
++            memset(record, 0, 1000);
++            int size = 0;
++
++            prepareLargeRecordForTwitterUser(recordDescriptorForTwitterUser.size(), nullsIndicator, i * batchSize + j,
++                                             record, &size);
++
++            rc = rbfm.insertRecord(fileHandle, recordDescriptorForTwitterUser, record, rid);
++            assert(rc == success && "Inserting a record for the file #1 should not fail.");
++
++            rids.push_back(rid);
++        }
++        for (int j = 0; j < batchSize; j++) {
++            memset(record2, 0, 1000);
++            int size2 = 0;
++
++            prepareLargeRecordForTweetMessage(recordDescriptorForTweetMessage.size(), nullsIndicator2,
++                                              i * batchSize + j, record2, &size2);
++
++            rc = rbfm.insertRecord(fileHandle2, recordDescriptorForTweetMessage, record2, rid2);
++            assert(rc == success && "Inserting a record  for the file #2 should not fail.");
++
++            rids2.push_back(rid2);
++        }
++
++        if (i % 5 == 0 && i != 0) {
++            std::cout << i << " / " << numRecords / batchSize << " batches (" << numRecords <<
++                      " records) inserted so far for both files." << std::endl;
++        }
++    }
++
++    std::cout << "Inserting " << numRecords << " records done for the both files."
++              << std::endl << std::endl;
++
++    // Close the file - test_private_4a
++    rc = rbfm.closeFile(fileHandle);
++    if (rc != success) {
++        return -1;
++    }
++    assert(rc == success);
++
++    free(record);
++    free(returnedData);
++
++    if (rids.size() != numRecords) {
++        return -1;
++    }
++
++    // Close the file - test_private_4b
++    rc = rbfm.closeFile(fileHandle2);
++    if (rc != success) {
++        return -1;
++    }
++    assert(rc == success);
++
++    free(record2);
++    free(returnedData2);
++
++    if (rids2.size() != numRecords) {
++        return -1;
++    }
++
++    int fsize = getFileSize(fileName);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        std::cout << "***** [FAIL] Test Case Private 4 Failed! *****" << std::endl
++                  << std::endl;
++        return -1;
++    }
++
++    fsize = getFileSize(fileName2);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        std::cout << "***** [FAIL] Test Case Private 4 Failed! *****" << std::endl
++                  << std::endl;
++        return -1;
++    }
++
++    // Write RIDs of test_private_4a to a disk - do not use this code. This is not a page-based operation. For test purpose only.
++    ofstream ridsFile("test_private_4a_rids",
++                      ios::out | ios::trunc | ios::binary);
++
++    if (ridsFile.is_open()) {
++        ridsFile.seekp(0, ios::beg);
++        for (int i = 0; i < numRecords; i++) {
++            ridsFile.write(reinterpret_cast<const char *>(&rids.at(i).pageNum), sizeof(unsigned));
++            ridsFile.write(reinterpret_cast<const char *>(&rids.at(i).slotNum), sizeof(unsigned));
++        }
++        ridsFile.close();
++        std::cout << std::endl << std::endl;
++    }
++
++    // Write RIDs of test_private_4b to a disk - do not use this code. This is not a page-based operation. For test purpose only.
++    ofstream ridsFile2("test_private_4b_rids", ios::out | ios::trunc | ios::binary);
++
++    if (ridsFile2.is_open()) {
++        ridsFile2.seekp(0, ios::beg);
++        for (int i = 0; i < numRecords; i++) {
++            ridsFile2.write(reinterpret_cast<const char *>(&rids2.at(i).pageNum), sizeof(unsigned));
++            ridsFile2.write(reinterpret_cast<const char *>(&rids2.at(i).slotNum), sizeof(unsigned));
++        }
++        ridsFile2.close();
++    }
++
++    std::cout << "***** RBF Test Case Private 4 Finished. The result will be examined. *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++
++    remove("test_private_4a");
++    remove("test_private_4b");
++    remove("test_private_4a_rids");
++    remove("test_private_4b_rids");
++
++    return RBFTest_private_4(RecordBasedFileManager::instance());
++}
+\ No newline at end of file
+diff --git a/rbf/rbftest_p5.cc b/rbf/rbftest_p5.cc
+new file mode 100644
+index 0000000..b7ee7fd
+--- /dev/null
++++ b/rbf/rbftest_p5.cc
+@@ -0,0 +1,195 @@
++#include <iostream>
++#include <cassert>
++#include <cstdlib>
++#include <cstring>
++#include <stdexcept>
++#include <cstdio>
++
++#include "pfm.h"
++#include "rbfm.h"
++#include "test_util.h"
++
++int RBFTest_private_4(RecordBasedFileManager &rbfm) {
++    // Functions Tested:
++    // 1. Open the File created by test_private_4 - test_private_4a
++    // 2. Read entire records - test_private_4a
++    // 3. Check correctness
++    // 4. Close the File - test_private_4a
++    // 5. Destroy the File - test_private_4a
++    // 6. Open the File created by test_private_4 - test_private_4b
++    // 7. Read entire records - test_private_4b
++    // 8. Check correctness
++    // 9. Close the File - test_private_4b
++    // 10. Destroy the File - test_private_4b
++
++    std::cout << std::endl << "***** In RBF Test Case Private 5 *****" << std::endl;
++
++    RC rc;
++    std::string fileName = "test_private_4a";
++    std::string fileName2 = "test_private_4b";
++
++    // Open the file "test_private_4a"
++    FileHandle fileHandle;
++    rc = rbfm.openFile(fileName, fileHandle);
++    assert(rc == success && "Opening a file should not fail.");
++
++    void *record = malloc(1000);
++    void *returnedData = malloc(1000);
++    unsigned numRecords = 5000;
++
++    std::vector<Attribute> recordDescriptorForTwitterUser, recordDescriptorForTweetMessage;
++    createRecordDescriptorForTwitterUser(recordDescriptorForTwitterUser);
++
++    std::vector<RID> rids, rids2;
++    RID tempRID, tempRID2;
++
++    // Read rids from the disk - do not use this code. This is not a page-based operation. For test purpose only.
++    ifstream ridsFileRead("test_private_4a_rids", ios::in | ios::binary);
++
++    unsigned pageNum;
++    unsigned slotNum;
++
++    if (ridsFileRead.is_open()) {
++        ridsFileRead.seekg(0, ios::beg);
++        for (unsigned i = 0; i < numRecords; i++) {
++            ridsFileRead.read(reinterpret_cast<char *>(&pageNum), sizeof(unsigned));
++            ridsFileRead.read(reinterpret_cast<char *>(&slotNum), sizeof(unsigned));
++            tempRID.pageNum = pageNum;
++            tempRID.slotNum = slotNum;
++            rids.push_back(tempRID);
++        }
++        ridsFileRead.close();
++    }
++
++    if (rids.size() != numRecords) {
++        return -1;
++    }
++
++    // NULL field indicator
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(recordDescriptorForTwitterUser.size());
++    unsigned char nullsIndicator[nullFieldsIndicatorActualSize];
++    memset(nullsIndicator, 0, nullFieldsIndicatorActualSize);
++
++    // Compare records from the disk read with the record created from the method
++    for (unsigned i = 0; i < numRecords; i++) {
++        memset(record, 0, 1000);
++        memset(returnedData, 0, 1000);
++        rc = rbfm.readRecord(fileHandle, recordDescriptorForTwitterUser, rids[i], returnedData);
++        if (rc != success) {
++            return -1;
++        }
++        assert(rc == success);
++
++        int size = 0;
++        prepareLargeRecordForTwitterUser(recordDescriptorForTwitterUser.size(), nullsIndicator, (int) i, record, &size);
++        if (memcmp(returnedData, record, size) != 0) {
++            std::cout << "***** [FAIL] Comparison failed - RBF Test Case Private 5 Failed! *****" << i << std::endl
++                      << std::endl;
++            free(record);
++            free(returnedData);
++            return -1;
++        }
++    }
++
++    // Close the file
++    rc = rbfm.closeFile(fileHandle);
++    assert(rc == success && "Closing a file should not fail.");
++
++    int fsize = getFileSize(fileName);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        std::cout << "***** [FAIL] RBF Test Case Private 5 Failed! *****" << std::endl << std::endl;
++        return -1;
++    }
++
++    // Destroy File
++    rc = rbfm.destroyFile(fileName);
++    assert(rc == success && "Destroying a file should not fail.");
++
++
++    // Open the file "test_private_4b"
++    FileHandle fileHandle2;
++    rc = rbfm.openFile(fileName2, fileHandle2);
++    assert(rc == success && "Opening a file should not fail.");
++
++    createRecordDescriptorForTweetMessage(recordDescriptorForTweetMessage);
++
++    std::cout << std::endl;
++
++    // NULL field indicator
++    int nullFieldsIndicatorActualSize2 = getActualByteForNullsIndicator(recordDescriptorForTweetMessage.size());
++    unsigned char nullsIndicator2[nullFieldsIndicatorActualSize2];
++    memset(nullsIndicator2, 0, nullFieldsIndicatorActualSize2);
++
++    // Read rids from the disk - do not use this code. This is not a page-based operation. For test purpose only.
++    ifstream ridsFileRead2("test_private_4b_rids", ios::in | ios::binary);
++
++    if (ridsFileRead2.is_open()) {
++        ridsFileRead2.seekg(0, ios::beg);
++        for (unsigned i = 0; i < numRecords; i++) {
++            ridsFileRead2.read(reinterpret_cast<char *>(&pageNum), sizeof(unsigned));
++            ridsFileRead2.read(reinterpret_cast<char *>(&slotNum), sizeof(unsigned));
++            tempRID2.pageNum = pageNum;
++            tempRID2.slotNum = slotNum;
++            rids2.push_back(tempRID2);
++        }
++        ridsFileRead2.close();
++    }
++
++    if (rids2.size() != numRecords) {
++        return -1;
++    }
++
++    // Compare records from the disk read with the record created from the method
++    for (unsigned i = 0; i < numRecords; i++) {
++        memset(record, 0, 1000);
++        memset(returnedData, 0, 1000);
++        rc = rbfm.readRecord(fileHandle2, recordDescriptorForTweetMessage, rids2[i],
++                             returnedData);
++        if (rc != success) {
++            return -1;
++        }
++        assert(rc == success);
++
++        int size = 0;
++        prepareLargeRecordForTweetMessage(recordDescriptorForTweetMessage.size(), nullsIndicator2, (int) i, record,
++                                          &size);
++        if (memcmp(returnedData, record, size) != 0) {
++            std::cout << "***** [FAIL] Comparison failed - RBF Test Case Private 5 Failed! *****" << i << std::endl
++                      << std::endl;
++            free(record);
++            free(returnedData);
++            return -1;
++        }
++    }
++
++    // Close the file
++    rc = rbfm.closeFile(fileHandle2);
++    assert(rc == success && "Closing a file should not fail.");
++
++    fsize = getFileSize(fileName2);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        std::cout << "***** [FAIL] RBF Test Case Private 5 Failed! *****" << std::endl << std::endl;
++        return -1;
++    }
++
++    // Destroy File
++    rc = rbfm.destroyFile(fileName2);
++    assert(rc == success && "Destroying a file should not fail.");
++
++    free(record);
++    free(returnedData);
++
++    remove("test_private_4a_rids");
++    remove("test_private_4b_rids");
++
++    std::cout << "***** RBF Test Case Private 5 Finished. The result will be examined. *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++
++    return RBFTest_private_4(RecordBasedFileManager::instance());
++}
+\ No newline at end of file
+diff --git a/rbf/rbftest_p6.cc b/rbf/rbftest_p6.cc
+new file mode 100644
+index 0000000..3de5b78
+--- /dev/null
++++ b/rbf/rbftest_p6.cc
+@@ -0,0 +1,139 @@
++#include <iostream>
++#include <cassert>
++#include <cstdlib>
++#include <stdexcept>
++#include <cstdio>
++
++#include "pfm.h"
++#include "test_util.h"
++
++int RBFTest_p5(PagedFileManager &pfm) {
++    // Functions Tested:
++    // 1. Open File
++    // 2. Append Page
++    // 3. Close File
++    // 4. Open File again
++    // 5. Get Number Of Pages
++    // 6. Get Counter Values
++    // 7. Close File
++    std::cout << std::endl << "***** In RBF Test Case Private 6 *****" << std::endl;
++
++    RC rc;
++    std::string fileName = "test_private_6";
++
++    unsigned readPageCount = 0;
++    unsigned writePageCount = 0;
++    unsigned appendPageCount = 0;
++    unsigned readPageCount1 = 0;
++    unsigned writePageCount1 = 0;
++    unsigned appendPageCount1 = 0;
++
++    rc = pfm.createFile(fileName);
++    assert(rc == success && "Creating the file should not fail.");
++
++    // Open the file "test_private_6"
++    FileHandle fileHandle;
++    rc = pfm.openFile(fileName, fileHandle);
++    assert(rc == success && "Opening the file should not fail.");
++
++    // Collect before counters
++    rc = fileHandle.collectCounterValues(readPageCount, writePageCount,
++                                         appendPageCount);
++    if (rc != success) {
++        std::cout << "[FAIL] collectCounterValues() failed. Test Case p5 failed." << std::endl;
++        pfm.closeFile(fileHandle);
++        return -1;
++    }
++
++    // Append the first page read the first page write the first page append the second page
++    void *data = malloc(PAGE_SIZE);
++    void *read_buffer = malloc(PAGE_SIZE);
++    for (unsigned i = 0; i < PAGE_SIZE; i++) {
++        *((char *) data + i) = i % 96 + 30;
++    }
++    rc = fileHandle.appendPage(data);
++    assert(rc == success && "Appending a page should not fail.");
++    rc = fileHandle.readPage(0, read_buffer);
++    assert(rc == success && "Reading a page should not fail.");
++    for (unsigned i = 0; i < PAGE_SIZE; i++) {
++        *((char *) data + i) = i % 96 + 30;
++    }
++    rc = fileHandle.writePage(0, data);
++    assert(rc == success && "Writing a page should not fail.");
++    for (unsigned i = 0; i < PAGE_SIZE; i++) {
++        *((char *) data + i) = i % 96 + 30;
++    }
++    rc = fileHandle.appendPage(data);
++    assert(rc == success && "Appending a page should not fail.");
++
++    // collect after counters
++    rc = fileHandle.collectCounterValues(readPageCount1, writePageCount1,
++                                         appendPageCount1);
++    if (rc != success) {
++        std::cout << "[FAIL] collectCounterValues() failed. Test Case 13 failed."
++                  << std::endl;
++        pfm.closeFile(fileHandle);
++        return -1;
++    }
++    assert(readPageCount1 - readPageCount == 1 && "Read counter should be correct.");
++    assert(writePageCount1 - writePageCount == 1 && "Write counter should be correct.");
++    assert(appendPageCount1 - appendPageCount == 2 && "Append counter should be correct.");
++    assert(appendPageCount1 > appendPageCount && "The appendPageCount should have been increased.");
++
++    // Get the number of pages
++    unsigned count = fileHandle.getNumberOfPages();
++    assert(count == (unsigned) 2 && "The count should be one at this moment.");
++
++    // Close the file "test_private_6"
++    rc = pfm.closeFile(fileHandle);
++
++    assert(rc == success && "Closing the file should not fail.");
++
++    // Open the file "test_private_6"
++    FileHandle fileHandle2;
++    rc = pfm.openFile(fileName, fileHandle2);
++
++    assert(rc == success && "Open the file should not fail.");
++
++    // collect after counters
++    rc = fileHandle2.collectCounterValues(readPageCount1, writePageCount1,
++                                          appendPageCount1);
++    if (rc != success) {
++        std::cout << "[FAIL] collectCounterValues() failed. Test Case p5 failed."
++                  << std::endl;
++        pfm.closeFile(fileHandle);
++        return -1;
++    }
++    std::cout << readPageCount << " " << readPageCount1 << std::endl;
++    assert(readPageCount1 - readPageCount == 1 && "Persistent read counter should be correct.");
++    assert(writePageCount1 - writePageCount == 1 && "Persistent write counter should be correct.");
++    assert(appendPageCount1 - appendPageCount == 2 && "Persistent append counter should be correct.");
++
++    rc = pfm.closeFile(fileHandle2);
++
++    assert(rc == success && "Closing the file should not fail.");
++
++    int fsize = getFileSize(fileName);
++    if (fsize <= 0) {
++        std::cout << "File Size should not be zero at this moment." << std::endl;
++        std::cout << "***** [FAIL] RBF Test Case Private 6 Failed! *****" << std::endl << std::endl;
++        return -1;
++    }
++
++    rc = pfm.destroyFile(fileName);
++    assert(rc == success && "Destroying the file should not fail.");
++
++    free(data);
++    free(read_buffer);
++
++    std::cout << "RBF Test Case Private 6 Finished! The result will be examined." << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++    // To test the functionality of the paged file manager
++    PagedFileManager &pfm = PagedFileManager::instance();
++    remove("test_private_6");
++    return RBFTest_p5(pfm);
++}
+\ No newline at end of file
+diff --git a/rbf/test_util.h b/rbf/test_util.h
+index dea334a..75ed628 100644
+--- a/rbf/test_util.h
++++ b/rbf/test_util.h
+@@ -3,6 +3,7 @@
+ #include <string>
+ #include <cassert>
+ #include <sys/stat.h>
++#include <sys/resource.h>
+ #include <cstdlib>
+ #include <cstring>
+ #include <stdexcept>
+@@ -16,23 +17,41 @@ using namespace std;
+ 
+ const int success = 0;
+ 
+-// Check whether a file exists
++// Check whether the given file exists
+ bool FileExists(string &fileName) {
+     struct stat stFileInfo{};
+ 
+     return stat(fileName.c_str(), &stFileInfo) == 0;
+ }
+ 
+-// Calculate actual bytes for nulls-indicator for the given field counts
+-int getActualByteForNullsIndicator(int fieldCount) {
++// Get the given file's size
++ifstream::pos_type getFileSize(const string &fileName) {
++    std::ifstream in(fileName.c_str(),
++                     std::ifstream::in | std::ifstream::binary);
++    in.seekg(0, std::ifstream::end);
++    cout << fileName << " - file size:" << in.tellg() << endl;
++    return in.tellg();
++}
+ 
+-    return ceil((double) fieldCount / CHAR_BIT);
++// Compare the sizes of two files
++bool compareFileSizes(const string &fileName1, string fileName2) {
++    streampos s1, s2;
++    ifstream in1(fileName1.c_str(), ifstream::in | ifstream::binary);
++    in1.seekg(0, ifstream::end);
++    s1 = in1.tellg();
++
++    ifstream in2(fileName2.c_str(), ifstream::in | ifstream::binary);
++    in2.seekg(0, ifstream::end);
++    s2 = in2.tellg();
++
++    cout << "File 1 size: " << s1 << " // File 2 size: " << s2 << endl;
++
++    return s1 == s2;
+ }
+ 
+ // After createFile() check
+ int createFileShouldSucceed(string &fileName) {
+     if (FileExists(fileName)) {
+-        cout << "File " << fileName << " has been created properly." << endl << endl;
+         return 0;
+     } else {
+         cout << "[Fail] Failed to create the file: " << fileName << endl;
+@@ -44,104 +63,425 @@ int createFileShouldSucceed(string &fileName) {
+ // After destroyFile() check
+ int destroyFileShouldSucceed(string &fileName) {
+     if (FileExists(fileName)) {
+-        cout << "[Fail] Failed to destory the file: " << fileName << endl;
++        cout << "[Fail] Failed to destroy the file: " << fileName << endl;
+         cout << "[Fail] Test Case Failed!" << endl << endl;
+         return -1;
+     } else {
+-        cout << "File " << fileName << " has been destroyed properly." << endl << endl;
+         return 0;
+     }
+ }
+ 
++// Calculate actual bytes for nulls-indicator based on the given field counts
++// 8 fields = 1 byte
++int getActualByteForNullsIndicator(int fieldCount) {
++
++    return ceil((double) fieldCount / CHAR_BIT);
++}
++
++// Record Descriptor for TweetMessage
++void createRecordDescriptorForTweetMessage(
++        vector<Attribute> &recordDescriptor) {
++
++    Attribute attr;
++    attr.name = "tweetid";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "userid";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "referred_topics";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 500;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "message_text";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 500;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "sender_location";
++    attr.type = TypeReal;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "send_time";
++    attr.type = TypeReal;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++}
++
+ // Function to prepare the data in the correct form to be inserted/read
+-void prepareRecord(int fieldCount, unsigned char *nullFieldsIndicator, const int nameLength, const string &name,
+-                   const int age, const float height, const int salary, void *buffer, int *recordSize) {
+-    int offset = 0;
++void prepareRecordForTweetMessage(int fieldCount, unsigned char *nullFieldsIndicator, const int tweetid,
++                                  const int userid, const int referred_topicsLength, const string &referred_topics,
++                                  const int message_textLength, const string &message_text, const float sender_location,
++                                  const float send_time, void *buffer, unsigned *recordSize) {
++
++    unsigned offset = 0;
+ 
+     // Null-indicators
+-    bool nullBit = false;
+-    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(fieldCount);
++    bool nullBit;
++    unsigned nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(
++            fieldCount);
+ 
+     // Null-indicator for the fields
+-    memcpy((char *) buffer + offset, nullFieldsIndicator, nullFieldsIndicatorActualSize);
++    memcpy((char *) buffer + offset, nullFieldsIndicator,
++           nullFieldsIndicatorActualSize);
+     offset += nullFieldsIndicatorActualSize;
+ 
+     // Beginning of the actual data
+     // Note that the left-most bit represents the first field. Thus, the offset is 7 from right, not 0.
+     // e.g., if a record consists of four fields and they are all nulls, then the bit representation will be: [11110000]
+ 
+-    // Is the name field not-NULL?
+-    nullBit = nullFieldsIndicator[0] & (unsigned) 1 << (unsigned) 7;
++    // Is the tweetid field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 7);
+ 
+     if (!nullBit) {
+-        memcpy((char *) buffer + offset, &nameLength, sizeof(int));
++        memcpy((char *) buffer + offset, &tweetid, sizeof(int));
+         offset += sizeof(int);
+-        memcpy((char *) buffer + offset, name.c_str(), nameLength);
+-        offset += nameLength;
+     }
+ 
+-    // Is the age field not-NULL?
+-    nullBit = nullFieldsIndicator[0] & (unsigned) 1 << (unsigned) 6;
++    // Is the userid field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 6);
++
+     if (!nullBit) {
+-        memcpy((char *) buffer + offset, &age, sizeof(int));
++        memcpy((char *) buffer + offset, &userid, sizeof(int));
+         offset += sizeof(int);
+     }
+ 
+-    // Is the height field not-NULL?
+-    nullBit = nullFieldsIndicator[0] & (unsigned) 1 << (unsigned) 5;
++    // Is the referred_topics field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 5);
++
+     if (!nullBit) {
+-        memcpy((char *) buffer + offset, &height, sizeof(float));
+-        offset += sizeof(float);
++        memcpy((char *) buffer + offset, &referred_topicsLength, sizeof(int));
++        offset += sizeof(int);
++        memcpy((char *) buffer + offset, referred_topics.c_str(),
++               referred_topicsLength);
++        offset += referred_topicsLength;
+     }
+ 
+-    // Is the height field not-NULL?
+-    nullBit = nullFieldsIndicator[0] & (unsigned) 1 << (unsigned) 4;
++    // Is the message_text field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 4);
++
+     if (!nullBit) {
+-        memcpy((char *) buffer + offset, &salary, sizeof(int));
++        memcpy((char *) buffer + offset, &message_textLength, sizeof(int));
+         offset += sizeof(int);
++        memcpy((char *) buffer + offset, message_text.c_str(),
++               message_textLength);
++        offset += message_textLength;
++    }
++
++    // Is the sender_location field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 3);
++
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &sender_location, sizeof(float));
++        offset += sizeof(float);
++    }
++
++    // Is the send_time field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 2);
++
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &send_time, sizeof(float));
++        offset += sizeof(float);
+     }
+ 
+     *recordSize = offset;
++
+ }
+ 
+-void prepareLargeRecord(int fieldCount, unsigned char *nullFieldsIndicator, const int index, void *buffer, int *size) {
++void prepareLargeRecordForTweetMessage(int fieldCount, unsigned char *nullFieldsIndicator, const int index,
++                                       void *buffer, int *size) {
+     int offset = 0;
+ 
+-    // compute the count
+-    int count = (index + 2) % 50 + 1;
++    int count = (index + 2) % 400 + 1;
++    int text = (index + 2) % 26 + 65;
++    string suffix(count, text);
+ 
+-    // compute the letter
+-    unsigned char text = (index + 2) % 26 + 97;
++    // Null-indicators
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(
++            fieldCount);
+ 
+     // Null-indicators
+-    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(fieldCount);
++    memcpy((char *) buffer + offset, nullFieldsIndicator,
++           nullFieldsIndicatorActualSize);
++    offset += nullFieldsIndicatorActualSize;
++
++    // tweetid = index
++    int tweetid = index + 1;
++
++    memcpy((char *) buffer + offset, &tweetid, sizeof(int));
++    offset += sizeof(int);
++
++    // userid
++    memcpy((char *) buffer + offset, &index, sizeof(int));
++    offset += sizeof(int);
++
++    // referred_topics
++    string referred_topics = "shortcut_menu" + suffix;
++    int referred_topicsLength = referred_topics.length();
++
++    memcpy((char *) buffer + offset, &referred_topicsLength, sizeof(int));
++    offset += sizeof(int);
++    memcpy((char *) buffer + offset, referred_topics.c_str(),
++           referred_topicsLength);
++    offset += referred_topicsLength;
++
++    // message_text
++    string message_text = "shortcut-menu is helpful: " + suffix;
++    int message_textLength = message_text.length();
++    memcpy((char *) buffer + offset, &message_textLength, sizeof(int));
++    offset += sizeof(int);
++    memcpy((char *) buffer + offset, message_text.c_str(), message_textLength);
++    offset += message_textLength;
++
++    // sender_location
++    auto sender_location = (float) (count + 0.1);
++
++    memcpy((char *) buffer + offset, &sender_location, sizeof(float));
++    offset += sizeof(float);
++
++    // send_time
++    auto send_time = (float) (index + 0.2);
++
++    memcpy((char *) buffer + offset, &send_time, sizeof(float));
++    offset += sizeof(float);
++
++    *size = offset;
++}
++
++// Record Descriptor for TwitterUser
++void createRecordDescriptorForTwitterUser(vector<Attribute> &recordDescriptor) {
++
++    Attribute attr;
++    attr.name = "userid";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "friends_count";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "statuses_count";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "screen_name";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 500;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "username";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 500;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "followers_count";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "satisfaction_score";
++    attr.type = TypeReal;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "lang";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 1000;
++    recordDescriptor.push_back(attr);
++
++}
++
++// Record Descriptor for TwitterUser
++void createRecordDescriptorForTwitterUser2(
++        vector<Attribute> &recordDescriptor) {
++
++    Attribute attr;
++    attr.name = "userid";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "friends_count";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "statuses_count";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "screen_name";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 800;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "username";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 800;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "followers_count";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "satisfaction_score";
++    attr.type = TypeReal;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    attr.name = "lang";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 800;
++    recordDescriptor.push_back(attr);
++
++}
++
++void prepareLargeRecordForTwitterUser(int fieldCount, unsigned char *nullFieldsIndicator, const int index,
++                                      void *buffer, int *size) {
++    int offset = 0;
+ 
+     // Null-indicators
+-    memcpy((char *) buffer + offset, nullFieldsIndicator, nullFieldsIndicatorActualSize);
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(
++            fieldCount);
++
++    // Null-indicators
++    memcpy((char *) buffer + offset, nullFieldsIndicator,
++           nullFieldsIndicatorActualSize);
+     offset += nullFieldsIndicatorActualSize;
+ 
+-    // Actual data
+-    for (int i = 0; i < 10; i++) {
+-        memcpy((char *) buffer + offset, &count, sizeof(int));
+-        offset += sizeof(int);
++    int count = (index + 2) % 200 + 1;
++    int text = (index + 2) % 26 + 97;
++    string suffix(count, text);
+ 
+-        for (int j = 0; j < count; j++) {
+-            memcpy((char *) buffer + offset, &text, 1);
+-            offset += 1;
+-        }
++    // userid = index
++    memcpy((char *) buffer + offset, &index, sizeof(int));
++    offset += sizeof(int);
+ 
+-        // compute the integer
+-        memcpy((char *) buffer + offset, &index, sizeof(int));
+-        offset += sizeof(int);
++    // friends_count
++    int friends_count = count - 1;
++
++    memcpy((char *) buffer + offset, &friends_count, sizeof(int));
++    offset += sizeof(int);
++
++    // statuses_count
++    int statuses_count = count + 1;
++
++    memcpy((char *) buffer + offset, &statuses_count, sizeof(int));
++    offset += sizeof(int);
++
++    // screen_name
++    string screen_name = "MillironNila@" + suffix;
++    int screen_nameLength = screen_name.length();
++
++    memcpy((char *) buffer + offset, &screen_nameLength, sizeof(int));
++    offset += sizeof(int);
++    memcpy((char *) buffer + offset, screen_name.c_str(), screen_nameLength);
++    offset += screen_nameLength;
++
++    // username
++    string username = "Milliron Nilla " + suffix;
++    int usernameLength = username.length();
++
++    memcpy((char *) buffer + offset, &usernameLength, sizeof(int));
++    offset += sizeof(int);
++    memcpy((char *) buffer + offset, username.c_str(), usernameLength);
++    offset += usernameLength;
++
++    // followers_count
++    int followers_count = count + 2;
++
++    memcpy((char *) buffer + offset, &followers_count, sizeof(int));
++    offset += sizeof(int);
++
++    // satisfaction_score
++    auto satisfaction_score = (float) (count + 0.1);
++
++    memcpy((char *) buffer + offset, &satisfaction_score, sizeof(float));
++    offset += sizeof(float);
++
++    // lang
++    string lang = "En " + suffix;
++    int langLength = lang.length();
++
++    memcpy((char *) buffer + offset, &langLength, sizeof(int));
++    offset += sizeof(int);
++    memcpy((char *) buffer + offset, lang.c_str(), langLength);
++    offset += langLength;
+ 
+-        // compute the floating number
+-        auto real = (float) (index + 1);
+-        memcpy((char *) buffer + offset, &real, sizeof(float));
+-        offset += sizeof(float);
+-    }
+     *size = offset;
+ }
+ 
++// Function to prepare the data in the correct form to be inserted/read
++void prepareRecordForTwitterUser(int fieldCount, unsigned char *nullFieldsIndicator, const int userid,
++                                 const int screen_nameLength, const string &screen_name, const int langLength,
++                                 const string &lang, const int friends_count, const int statuses_count,
++                                 const int usernameLength, const string &username, const int followers_count,
++                                 const float satisfaction_score, void *buffer, int *recordSize) {
++
++    int offset = 0;
++
++    // Null-indicators
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(
++            fieldCount);
++
++    // Null-indicators
++    memcpy((char *) buffer + offset, nullFieldsIndicator,
++           nullFieldsIndicatorActualSize);
++    offset += nullFieldsIndicatorActualSize;
++
++    // userid
++    memcpy((char *) buffer + offset, &userid, sizeof(int));
++    offset += sizeof(int);
++
++    // friends_count
++    memcpy((char *) buffer + offset, &friends_count, sizeof(int));
++    offset += sizeof(int);
++
++    // statuses_count
++    memcpy((char *) buffer + offset, &statuses_count, sizeof(int));
++    offset += sizeof(int);
++
++    // screen_name
++    memcpy((char *) buffer + offset, &screen_nameLength, sizeof(int));
++    offset += sizeof(int);
++    memcpy((char *) buffer + offset, screen_name.c_str(), screen_nameLength);
++    offset += screen_nameLength;
++
++    // username
++    memcpy((char *) buffer + offset, &usernameLength, sizeof(int));
++    offset += sizeof(int);
++    memcpy((char *) buffer + offset, username.c_str(), usernameLength);
++    offset += usernameLength;
++
++    // followers_count
++    memcpy((char *) buffer + offset, &followers_count, sizeof(int));
++    offset += sizeof(int);
++
++    // satisfaction_score
++    memcpy((char *) buffer + offset, &satisfaction_score, sizeof(float));
++    offset += sizeof(float);
++
++    // lang
++    memcpy((char *) buffer + offset, &langLength, sizeof(int));
++    offset += sizeof(int);
++    memcpy((char *) buffer + offset, lang.c_str(), langLength);
++    offset += langLength;
++
++    *recordSize = offset;
++}
++
+ void createRecordDescriptor(vector<Attribute> &recordDescriptor) {
+ 
+     Attribute attr;
+@@ -167,6 +507,59 @@ void createRecordDescriptor(vector<Attribute> &recordDescriptor) {
+ 
+ }
+ 
++// Function to prepare the data in the correct form to be inserted/read
++void prepareRecord(int fieldCount, unsigned char *nullFieldsIndicator, const int nameLength, const string &name,
++                   const int age, const float height, const int salary, void *buffer, int *recordSize) {
++    int offset = 0;
++
++    // Null-indicators
++    bool nullBit = false;
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(
++            fieldCount);
++
++    // Null-indicator for the fields
++    memcpy((char *) buffer + offset, nullFieldsIndicator,
++           nullFieldsIndicatorActualSize);
++    offset += nullFieldsIndicatorActualSize;
++
++    // Beginning of the actual data
++    // Note that the left-most bit represents the first field. Thus, the offset is 7 from right, not 0.
++    // e.g., if a record consists of four fields and they are all nulls, then the bit representation will be: [11110000]
++
++    // Is the name field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 7);
++
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &nameLength, sizeof(int));
++        offset += sizeof(int);
++        memcpy((char *) buffer + offset, name.c_str(), nameLength);
++        offset += nameLength;
++    }
++
++    // Is the age field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 6);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &age, sizeof(int));
++        offset += sizeof(int);
++    }
++
++    // Is the height field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 5);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &height, sizeof(float));
++        offset += sizeof(float);
++    }
++
++    // Is the height field not-NULL?
++    nullBit = nullFieldsIndicator[0] & ((unsigned) 1 << (unsigned) 4);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &salary, sizeof(int));
++        offset += sizeof(int);
++    }
++
++    *recordSize = offset;
++}
++
+ void createLargeRecordDescriptor(vector<Attribute> &recordDescriptor) {
+     char *suffix = (char *) malloc(10);
+     for (int i = 0; i < 10; i++) {
+@@ -195,14 +588,15 @@ void createLargeRecordDescriptor(vector<Attribute> &recordDescriptor) {
+     free(suffix);
+ }
+ 
+-void prepareLargeRecord2(int fieldCount, unsigned char *nullFieldsIndicator, const int index, void *buffer, int *size) {
++void prepareLargeRecord(int fieldCount, unsigned char *nullFieldsIndicator,
++                        const int index, void *buffer, int *size) {
+     int offset = 0;
+ 
+     // compute the count
+-    int count = (index + 2) % 60 + 1;
++    int count = (index + 2) % 50 + 1;
+ 
+     // compute the letter
+-    auto text = (index + 2) % 26 + 65;
++    char text = (index + 2) % 26 + 97;
+ 
+     // Null-indicators
+     int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(fieldCount);
+@@ -211,7 +605,15 @@ void prepareLargeRecord2(int fieldCount, unsigned char *nullFieldsIndicator, con
+     memcpy((char *) buffer + offset, nullFieldsIndicator, nullFieldsIndicatorActualSize);
+     offset += nullFieldsIndicatorActualSize;
+ 
++    // Actual data
+     for (int i = 0; i < 10; i++) {
++        memcpy((char *) buffer + offset, &count, sizeof(int));
++        offset += sizeof(int);
++        for (int j = 0; j < count; j++) {
++            memcpy((char *) buffer + offset, &text, 1);
++            offset += 1;
++        }
++
+         // compute the integer
+         memcpy((char *) buffer + offset, &index, sizeof(int));
+         offset += sizeof(int);
+@@ -220,16 +622,6 @@ void prepareLargeRecord2(int fieldCount, unsigned char *nullFieldsIndicator, con
+         auto real = (float) (index + 1);
+         memcpy((char *) buffer + offset, &real, sizeof(float));
+         offset += sizeof(float);
+-
+-        // compute the varchar field
+-        memcpy((char *) buffer + offset, &count, sizeof(int));
+-        offset += sizeof(int);
+-
+-        for (int j = 0; j < count; j++) {
+-            memcpy((char *) buffer + offset, &text, 1);
+-            offset += 1;
+-        }
+-
+     }
+     *size = offset;
+ }
+@@ -261,4 +653,234 @@ void createLargeRecordDescriptor2(vector<Attribute> &recordDescriptor) {
+ 
+     }
+     free(suffix);
+-}
+\ No newline at end of file
++}
++
++void prepareLargeRecord2(int fieldCount, unsigned char *nullFieldsIndicator,
++                         const int index, void *buffer, int *size) {
++    int offset = 0;
++
++    // compute the count
++    int count = (index + 2) % 60 + 1;
++
++    // compute the letter
++    char text = (index + 2) % 26 + 65;
++
++    // Null-indicators
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(
++            fieldCount);
++
++    // Null-indicators
++    memcpy((char *) buffer + offset, nullFieldsIndicator,
++           nullFieldsIndicatorActualSize);
++    offset += nullFieldsIndicatorActualSize;
++
++    for (int i = 0; i < 10; i++) {
++        // compute the integer
++        memcpy((char *) buffer + offset, &index, sizeof(int));
++        offset += sizeof(int);
++
++        // compute the floating number
++        auto real = (float) (index + 1);
++        memcpy((char *) buffer + offset, &real, sizeof(float));
++        offset += sizeof(float);
++
++        // compute the varchar field
++        memcpy((char *) buffer + offset, &count, sizeof(int));
++        offset += sizeof(int);
++
++        for (int j = 0; j < count; j++) {
++            memcpy((char *) buffer + offset, &text, 1);
++            offset += 1;
++        }
++
++    }
++    *size = offset;
++}
++
++void createLargeRecordDescriptor3(vector<Attribute> &recordDescriptor) {
++    int index = 0;
++    char *suffix = (char *) malloc(10);
++    for (int i = 0; i < 7; i++) {
++        Attribute attr;
++        sprintf(suffix, "%d", index);
++        attr.name = "attr";
++        attr.name += suffix;
++        attr.type = TypeVarChar;
++        attr.length = (AttrLength) 60;
++        recordDescriptor.push_back(attr);
++        index++;
++
++        sprintf(suffix, "%d", index);
++        attr.name = "attr";
++        attr.name += suffix;
++        attr.type = TypeInt;
++        attr.length = (AttrLength) 4;
++        recordDescriptor.push_back(attr);
++        index++;
++
++        sprintf(suffix, "%d", index);
++        attr.name = "attr";
++        attr.name += suffix;
++        attr.type = TypeReal;
++        attr.length = (AttrLength) 4;
++        recordDescriptor.push_back(attr);
++        index++;
++
++    }
++    free(suffix);
++}
++
++void prepareLargeRecord3(int fieldCount, unsigned char *nullFieldsIndicator,
++                         const int index, void *buffer, int *size) {
++    int offset = 0;
++
++    // compute the count
++    int count = (index + 2) % 60 + 1;
++
++    // compute the letter
++    char text = (index + 2) % 26 + 65;
++
++    // Null-indicators
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(
++            fieldCount);
++
++    // Null-indicators
++    memcpy((char *) buffer + offset, nullFieldsIndicator,
++           nullFieldsIndicatorActualSize);
++    offset += nullFieldsIndicatorActualSize;
++
++    int attr_pos = 0;
++    int attr_pos_in_nth_byte = 0;
++    unsigned attr_pos_in_nth_bit_in_a_byte = 0;
++
++    bool nullBit;
++
++    for (int i = 0; i < 7; i++) {
++        attr_pos_in_nth_byte = floor((double) attr_pos / CHAR_BIT);
++        attr_pos_in_nth_bit_in_a_byte = CHAR_BIT - 1 - attr_pos % CHAR_BIT;
++
++        nullBit = nullFieldsIndicator[attr_pos_in_nth_byte]
++                  & ((unsigned) 1 << attr_pos_in_nth_bit_in_a_byte);
++
++        if (!nullBit) {
++            // compute the Varchar field
++            memcpy((char *) buffer + offset, &count, sizeof(int));
++            offset += sizeof(int);
++
++            for (int j = 0; j < count; j++) {
++                memcpy((char *) buffer + offset, &text, 1);
++                offset += 1;
++            }
++        }
++
++        attr_pos++;
++
++        attr_pos_in_nth_byte = floor((double) attr_pos / CHAR_BIT);
++        attr_pos_in_nth_bit_in_a_byte = CHAR_BIT - 1 - attr_pos % CHAR_BIT;
++
++        nullBit = nullFieldsIndicator[attr_pos_in_nth_byte]
++                  & ((unsigned) 1 << attr_pos_in_nth_bit_in_a_byte);
++
++        if (!nullBit) {
++            // compute the integer
++            memcpy((char *) buffer + offset, &index, sizeof(int));
++            offset += sizeof(int);
++        }
++
++        attr_pos++;
++
++        attr_pos_in_nth_byte = floor((double) attr_pos / CHAR_BIT);
++        attr_pos_in_nth_bit_in_a_byte = CHAR_BIT - 1 - attr_pos % CHAR_BIT;
++
++        nullBit = nullFieldsIndicator[attr_pos_in_nth_byte]
++                  & ((unsigned) 1 << attr_pos_in_nth_bit_in_a_byte);
++
++        if (!nullBit) {
++            // compute the floating number
++            auto real = (float) (index + 1);
++            memcpy((char *) buffer + offset, &real, sizeof(float));
++            offset += sizeof(float);
++        }
++
++        attr_pos++;
++    }
++    *size = offset;
++}
++
++void createLargeRecordDescriptor4(vector<Attribute> &recordDescriptor) {
++    int index = 0;
++    char *suffix = (char *) malloc(10);
++    Attribute attr;
++    sprintf(suffix, "%d", index);
++    attr.name = "attr";
++    attr.name += suffix;
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 2200;
++    recordDescriptor.push_back(attr);
++    index++;
++
++    sprintf(suffix, "%d", index);
++    attr.name = "attr";
++    attr.name += suffix;
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    recordDescriptor.push_back(attr);
++
++    free(suffix);
++}
++
++void prepareLargeRecord4(int fieldCount, unsigned char *nullFieldsIndicator,
++                         const int index, void *buffer, int *size) {
++    int offset = 0;
++
++    // compute the count
++    int count = index % 2200 + 1;
++
++    // compute the letter
++    char text = (index + 2) % 26 + 65;
++
++    // Null-indicators
++    int nullFieldsIndicatorActualSize = getActualByteForNullsIndicator(
++            fieldCount);
++
++    // Null-indicators
++    memcpy((char *) buffer + offset, nullFieldsIndicator,
++           nullFieldsIndicatorActualSize);
++    offset += nullFieldsIndicatorActualSize;
++
++    // compute the varchar field
++    memcpy((char *) buffer + offset, &count, sizeof(int));
++    offset += sizeof(int);
++
++    for (int j = 0; j < count; j++) {
++        memcpy((char *) buffer + offset, &text, 1);
++        offset += 1;
++    }
++
++    // compute the integer
++    memcpy((char *) buffer + offset, &index, sizeof(int));
++    offset += sizeof(int);
++
++    *size = offset;
++}
++
++void getByteOffset(unsigned pos, unsigned &bytes, unsigned &offset) {
++    bytes = pos / 8;
++
++    offset = 7 - pos % 8;
++}
++
++void setBit(byte &src, bool value, unsigned offset) {
++    if (value) {
++        src |= (unsigned) 1 << offset;
++    } else {
++        src &= ~((unsigned) 1 << offset);
++    }
++}
++
++void setAttrNull(void *src, ushort attrNum, bool isNull) {
++    unsigned bytes = 0;
++    unsigned pos = 0;
++    getByteOffset(attrNum, bytes, pos);
++    setBit(*((byte *) src + bytes), isNull, pos);
++}
+-- 
+2.21.0 (Apple Git-120)
+

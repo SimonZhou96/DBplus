@@ -19,4 +19,10 @@ cstdio
 -
 vector
 -
+cstring
+-
+unordered_map
+-
+list
+-
 

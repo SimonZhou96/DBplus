@@ -1,0 +1,48 @@
+make: Warning: Archive 'librbf.a' seems to have been created in deterministic mode. 'pfm.o' will always be updated. Please consider passing the U flag to ar to avoid the problem.
+ar rv librbf.a pfm.o
+r - pfm.o
+make: Warning: Archive 'librbf.a' seems to have been created in deterministic mode. 'pfm.o' will always be updated. Please consider passing the U flag to ar to avoid the problem.
+g++  -Wall -I.. -g -std=c++11    -c -o rbfm.o rbfm.cc
+rbfm.cc: In member function ‘RC RBFM_ScanIterator::initialize(FileHandle&, const std::vector<Attribute>&, const string&, CompOp, const void*, const std::vector<std::__cxx11::basic_string<char> >&)’:
+rbfm.cc:547:32: error: invalid conversion from ‘const void*’ to ‘void*’ [-fpermissive]
+     RBFM_ScanIterator::value = value;
+                                ^~~~~
+rbfm.cc:550:64: error: cannot convert ‘RecordBasedFileManager’ to ‘RecordBasedFileManager*’ in assignment
+     RBFM_ScanIterator::rbfm = RecordBasedFileManager::instance();
+                                                                ^
+rbfm.cc: In member function ‘RC RBFM_ScanIterator::getNextRecord(RID&, void*)’:
+rbfm.cc:593:16: warning: enumeration value ‘TypeVarChar’ not handled in switch [-Wswitch]
+         switch (recordDescriptor[conditionPos].type){
+                ^
+rbfm.cc: In member function ‘RC RBFM_ScanIterator::formatData(void*)’:
+rbfm.cc:744:31: error: request for member ‘type’ in ‘((RBFM_ScanIterator*)this)->RBFM_ScanIterator::AttriPos.std::vector<AttrType>::operator[](((std::vector<AttrType>::size_type)pos))’, which is of non-class type ‘__gnu_cxx::__alloc_traits<std::allocator<AttrType> >::value_type {aka AttrType}’
+         switch (AttriPos[pos].type){
+                               ^~~~
+rbfm.cc: At global scope:
+rbfm.cc:766:4: error: ‘rbfm_ScanIterator’ has not been declared
+ RC rbfm_ScanIterator::close(){
+    ^~~~~~~~~~~~~~~~~
+rbfm.cc: In function ‘RC close()’:
+rbfm.cc:767:10: error: ‘buffer’ was not declared in this scope
+     free(buffer);
+          ^~~~~~
+rbfm.cc:767:10: note: suggested alternative: ‘setbuffer’
+     free(buffer);
+          ^~~~~~
+          setbuffer
+rbfm.cc:768:5: error: ‘current_rid’ was not declared in this scope
+     current_rid.pageNum = -1;
+     ^~~~~~~~~~~
+rbfm.cc:768:5: note: suggested alternative: ‘cuserid’
+     current_rid.pageNum = -1;
+     ^~~~~~~~~~~
+     cuserid
+rbfm.cc:770:5: error: ‘totalRecord’ was not declared in this scope
+     totalRecord = 0;
+     ^~~~~~~~~~~
+rbfm.cc:770:5: note: suggested alternative: ‘shiftRecord’
+     totalRecord = 0;
+     ^~~~~~~~~~~
+     shiftRecord
+<builtin>: recipe for target 'rbfm.o' failed
+make: *** [rbfm.o] Error 1

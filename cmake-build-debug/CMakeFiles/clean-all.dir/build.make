@@ -54,7 +54,7 @@ CMAKE_BINARY_DIR = /Users/mengzhou/CLionProjects/cs222-fall19-team-39/cmake-buil
 include CMakeFiles/clean-all.dir/progress.make
 
 CMakeFiles/clean-all:
-	rm Index* Indices* left* right* large* group* *out Tables Columns tbl_*
+	rm Index* Indices* left* right* large* group* *out Tables Columns tbl_* *_file
 
 clean-all: CMakeFiles/clean-all
 clean-all: CMakeFiles/clean-all.dir/build.make

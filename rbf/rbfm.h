@@ -4,9 +4,10 @@
 #include <string>
 #include <vector>
 #include <climits>
-
+#include <iostream>
+#include <cstdio>
 #include "pfm.h"
-
+#include <cmath>
 // Record ID
 typedef struct {
     unsigned pageNum;    // page number
@@ -37,6 +38,12 @@ typedef enum {
     NO_OP       // no condition
 } CompOp;
 
+//FOR Slot Information:
+// Len = 0 => The record's attribute values are all 0s (Very Unlikely, but just in case)
+// Len = PAGE_SIZE + 1 => The record is redircted to other page
+// Len = -1 => This is a deleted slot
+
+class RecordBasedFileManager;
 
 /********************************************************************
 * The scan iterator is NOT required to be implemented for Project 1 *
@@ -55,16 +62,40 @@ typedef enum {
 
 class RBFM_ScanIterator {
 public:
-    RBFM_ScanIterator() = default;;
+    RBFM_ScanIterator() = default;
 
-    ~RBFM_ScanIterator() = default;;
+    ~RBFM_ScanIterator() = default;
+
+    
+    RC initialize(FileHandle &fileHandle,const std::vector<Attribute> &recordDescriptor,
+    const std::string &conditionAttribute, const CompOp compOp, const void *value,
+    const std::vector<std::string> &attributeNames);
 
     // Never keep the results in the memory. When getNextRecord() is called,
     // a satisfying record needs to be fetched from the file.
     // "data" follows the same format as RecordBasedFileManager::insertRecord().
-    RC getNextRecord(RID &rid, void *data) { return RBFM_EOF; };
+    RC getNextRecord(RID &rid, void *data);
 
-    RC close() { return -1; };
+    
+    RC formatData(void *data);
+
+    RC close();
+
+private:
+    RID current_rid;
+    unsigned totalPage;
+    FileHandle fileHandle;
+    std::vector<Attribute> recordDescriptor;
+    std::vector<std::string> attributeNames;
+    std::string conditionAttribute;
+    CompOp compOp;
+    void *value;
+    void* buffer;
+    short totalRecord;
+    RecordBasedFileManager* rbfm;
+    int conditionPos;
+    std::vector<AttrType> AttriPos;
+
 };
 
 class RecordBasedFileManager {
@@ -119,9 +150,25 @@ public:
     RC updateRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const void *data,
                     const RID &rid);
 
+    RC updateEqualRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const void *data,
+            void *pageData, const RID &rid);
+
+    RC updateLargeInRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const void *data,
+            void * pageData, const RID &rid);
+    RC updateSmallInRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const void *data,
+            void * pageData, const RID &rid, int ifIndirect);
+
+    RC updateOutRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const void *data,
+            void * pageData, const RID &rid);
+
+    RC decodeRecord(void * src, const std::vector<Attribute> &recordDescriptor);
+    RC encodeRecord(void * src, const std::vector<Attribute> &recordDescriptor);
+
     // Read an attribute given its name and the rid.
     RC readAttribute(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const RID &rid,
                      const std::string &attributeName, void *data);
+
+    RC updatePageInformation(short freespace, short numberOfRecord, void *data);
 
     // Scan returns an iterator to allow the caller to go through the results one by one.
     RC scan(FileHandle &fileHandle,
@@ -132,13 +179,23 @@ public:
             const std::vector<std::string> &attributeNames, // a list of projected attributes
             RBFM_ScanIterator &rbfm_ScanIterator);
 
+    RC getPageInformation(void* data, FileHandle &fileHandle, unsigned PID, short &numberRecord, short &freeSpace);
+    RC getSlotInfo(void* data,unsigned PID, short &length, short &offset, short numberRecord);
+    RC initialPage(FileHandle &fileHandle);
+    short recordLength(const std::vector<Attribute> &recordDescriptor, const void* data);
+    short findEmptySlot(const void* data, const short numberRecord, short &offset);
+    short getLastRecordsInfo(const void* page);
+    RC shiftRecord(void *pageData, const RID &rid, short numberOfRecord, short offset);
+
+
 public:
 protected:
     RecordBasedFileManager();                                                   // Prevent construction
     ~RecordBasedFileManager();                                                  // Prevent unwanted destruction
     RecordBasedFileManager(const RecordBasedFileManager &);                     // Prevent construction by copying
-    RecordBasedFileManager &operator=(const RecordBasedFileManager &);          // Prevent assignment
-
+    // Prevent assignment
+    // this is initially set to protected
+    RecordBasedFileManager &operator=(const RecordBasedFileManager &);
 
 private:
     static RecordBasedFileManager *_rbf_manager;

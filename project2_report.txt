@@ -1,0 +1,188 @@
+1. Basic information
+Team number (e.g., 01):
+#1 Student ID: 76521043
+#1 Student Name: MENG ZHOU
+#2 Student ID: 23122210
+#2 Student Name: XIANGDE ZENG
+OS (bit): Mac, Linux 
+gcc version:
+1. Apple LLVM version 10.0.1 (clang-1001.0.46.4)
+
+
+2. Meta-data
+- Show your meta-data design (Tables and Columns table) and information about each column.
+	We used the same design as Record Based File, in Tables, each table, including itself, should have a data format (Table id) + (Table Length Info) + Table name + (File Length Info) Filename), and there will be a metadata to record the offset as well as length of current record, in Columns, including itself, should have a data format (Table id) + (Column Length Info) + (Column Name) + (Column Type) + ..., there will be a meta record like in Tables.
+For each Column in 
+(1)Tables, table id: the unique current id of specific table
+	    table name: the name of the specific table
+ 	    file name: the name of the specific file, in our case, the file name is the same as the table name.
+(2)Columns, table id: the current id of specific table
+	    column-name: the name of that column
+	    column-type: the type of that column(Float, Int or Varchar)
+	    column-length: the length of that column can hold in maximum.
+ 	    column-position: the index of where the column is (i.e 0 means the first column in that table)
+	    
+
+3. Internal Record Format
+- Show your record format design and describe how your design satisfies O(1) field access. If not, just mention that your team hasn't implemented this feature.
+	We used a specific area in that page to store the length as well as the offset of that record, so every time we need to access the field data, we first access the record meta data to get the length and offset of that record, which is O(1). And for delete() and update(), we used memmove() that is provided by C++ standard library to move the whole block of record as we want, so there is only one operation for that field access, which is O(1), for readRecord(), since we use pointer to pinpoint where that record is, this should be a atomic operation, which is O(1).
+
+- Describe how you store a VarChar field.
+	We store a VarChar field as two parts, the first part indicates the length of the varchar, which is stored as int, in case there won't be any out of bounds exception when accessing the VarChar, then follows with the Varchar Content.
+- Describe how you deal with an update and delete.
+	For Update, there will be approximately five different cases:
+	    1. the new record's size is equal to current record size
+            2. the new record's size is larger than the current size but smaller than the free space
+            3. the new record size is smaller than the current record size
+            4. the new record size cannot be stored the current page
+            5. the new record size is smaller than the pointer size
+	So for every situation, we need to find that record which needs to be updated, and then update the record based on the current record size and the new record size, then we need to implement a ShiftRecord() function to shift all the records behind of that current record. If the new record size can't be hold by that page, we need to overlap the current record by the new Page ID and new SlotNum which will be given by InsertRecord(), and set the recordLength in record metadata to 4097 to indicate that record is an indirect address points to another page. For the nested indirect address, we used recursion to solve the problem.
+	For Delete, the similiar logic as Update, we need to delete that record and shift the rest of the records behind of that record. If that record indicates an indirect address. We need to recursively find the page contains the real data, and then delete it along with the records that contain indirect address.	
+
+4. Page Format
+- Show your page format design.
+Same as Project 1, the hierarchy is:
+	-- hidden page
+	We use a hidden started from the beginning of the file whose size is 4096 Bytes. In which stores the counter values (i.e. readNumberOfPage, appendNumberOfPage, writeNumberOfPage, numberOfPage).
+	-- other pages
+	(records) + (records information) + (number of records) + (freespace)
+	Meanwhile, in order to capture the information of records and free space quickly. We set a space at the end of each page to store the freespace, number of records and each records information. It looks like this  ...->record2Length -> record2Offset -> record1Length -> record1Offset -> NumbefOfRecords -> FreeSpace. So using fseek, we can easily find the information we want.
+
+5. File Format
+- Show your file format design
+	Our file format is based on the RBF, so it should look like table format. A file is essentially the same structure as a table.
+6. Implementation Detail
+- Other implementation details goes here.
+	For Scan() function, after opening the corresponding table file, we will initialize the iterator with an rid that start from the first slot in the first page. We have a Page-size buffer to store the current page to reduce the I/O operation. While scaning, we will use readAttribute() to check each record's conditional attribute value. If the record is satisfied, its rid and original record will be returned. and the iterotor will move to the next candidate record.
+7. Other (optional)
+- Freely use this section to tell us about things that are related to the project 2, but not related to the other sections (optional)
+	We implemented all the functions in twenty hours and spent nearly 100 hours to debug. That is how charm the C++ looks like, we are played by the pointers in C++.
+
+
+-----------------------SCREENSHOT of some test cases
+
+-------VALGRIND
+TEST CASE 08
+==4162== Memcheck, a memory error detector
+==4162== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==4162== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==4162== Command: ./rmtest_08
+==4162==
+==4162== error calling PR_SET_PTRACER, vgdb might block
+
+***** In RM Test Case 8 *****
+***** Test Case 8 Finished. The result will be examined. *****
+
+==4162==
+==4162== HEAP SUMMARY:
+==4162==     in use at exit: 0 bytes in 0 blocks
+==4162==   total heap usage: 1,342,890 allocs, 1,342,890 frees, 4,886,716,763 bytes allocated
+==4162==
+==4162== All heap blocks were freed -- no leaks are possible
+==4162==
+==4162== For counts of detected and suppressed errors, rerun with: -v
+==4162== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+TEST CASE 09
+==4163== Memcheck, a memory error detector
+==4163== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==4163== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==4163== Command: ./rmtest_09
+==4163== 
+==4163== error calling PR_SET_PTRACER, vgdb might block
+***** In RM Test case 9 *****
+***** Test Case 9 Finished. The result will be examined. *****
+
+==4163== 
+==4163== HEAP SUMMARY:
+==4163==     in use at exit: 0 bytes in 0 blocks
+==4163==   total heap usage: 1,342,699 allocs, 1,342,699 frees, 4,885,934,331 bytes allocated
+==4163== 
+==4163== All heap blocks were freed -- no leaks are possible
+==4163== 
+==4163== For counts of detected and suppressed errors, rerun with: -v
+==4163== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+
+TEST CASE 10
+==4164== Memcheck, a memory error detector
+==4164== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==4164== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==4164== Command: ./rmtest_10
+==4164== 
+==4164== error calling PR_SET_PTRACER, vgdb might block
+
+***** In RM Test case 10 *****
+***** Test Case 10 Finished. The result will be examined. *****
+
+==4164== 
+==4164== HEAP SUMMARY:
+==4164==     in use at exit: 0 bytes in 0 blocks
+==4164==   total heap usage: 1,343,896 allocs, 1,343,896 frees, 4,889,819,190 bytes allocated
+==4164== 
+==4164== All heap blocks were freed -- no leaks are possible
+==4164== 
+==4164== For counts of detected and suppressed errors, rerun with: -v
+==4164== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+
+
+-------GDB
+Breakpoint 1 at 0x405b2c: file rmtest_12.cc, line 47.
+(gdb) r
+Starting program: /home/xiangdez/cs222-fall19-team-39/rm/./rmtest_12
+
+***** In RM Test case 12 *****
+Real Value: 1104
+Varchar size: 4
+VarChar Value: llll
+Integer Value: 1103
+
+
+Breakpoint 1, TEST_RM_12 (tableName="tbl_employee4") at rmtest_12.cc:47
+47	            free(buffer);
+Missing separate debuginfos, use: debuginfo-install glibc-2.17-292.el7.x86_64 libgcc-4.8.5-36.el7_6.2.x86_64 libstdc++-4.8.5-36.el7_6.2.x86_64
+(gdb) p j
+$1 = 0
+(gdb) c
+Continuing.
+Real Value: 1195
+Varchar size: 45
+VarChar Value: yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+Integer Value: 1194
+
+
+Breakpoint 1, TEST_RM_12 (tableName="tbl_employee4") at rmtest_12.cc:47
+47	            free(buffer);
+(gdb) p j
+$2 = 200
+(gdb) c
+Continuing.
+Real Value: 1395
+Varchar size: 45
+VarChar Value: qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+Integer Value: 1394
+
+
+Breakpoint 1, TEST_RM_12 (tableName="tbl_employee4") at rmtest_12.cc:47
+47	            free(buffer);
+(gdb) p j
+$3 = 400
+(gdb) delete 1
+(gdb) c
+Continuing.
+Real Value: 1596
+Varchar size: 46
+VarChar Value: jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+Integer Value: 1595
+
+Real Value: 1797
+Varchar size: 47
+VarChar Value: ccccccccccccccccccccccccccccccccccccccccccccccc
+Integer Value: 1796
+
+Total number of tuples: 1000
+
+***** Test Case 12 Finished. The result will be examined. *****
+
+[Inferior 1 (process 22812) exited normally]
+(gdb) q
