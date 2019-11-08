@@ -17,30 +17,22 @@ Furthermore, in the level of catalog file. There are two system tables which are
 
 ## Background
 Here is the herarchy that the DBplus system is using.
-
+![image](https://user-images.githubusercontent.com/34784304/68452284-e536e380-01a6-11ea-8d75-ca83340d9fcc.png)
+The DBMS consisted of Record-based File Management, Relation Manager, B+ tree-based Index Manager and a pull-based Query Engine.
 ### Any optional sections
 ## Usage
-
-```
-```
-
-Note: The `license` badge image link at the top of this file should be updated with the correct `:user` and `:repo`.
-
-### Any optional sections
+The same as using C++(make + the test cases you wanna run)
 
 ## API
-
-### Any optional sections
-
-## More optional sections
+File operation:FSEEK(),FREAD, FWRITE() and etc.
 
 ## Contributing
 
-See [the contributing file](CONTRIBUTING.md)!
+### Contributor
+Simon Zhou
+### 
+Implemented Record-based File Management, Relation Manager, B+ tree-based Index Manager and a pull-based Query Engine.
 
-PRs accepted.
+Implemented memory-based interfaces to optimize the speed of accessing page data, previously the data was read by disk I/O, greatly reduced the I/O usage by 80 %
 
-Small note: If editing the Readme, please conform to the [standard-readme](https://github.com/RichardLitt/standard-readme) specification.
-
-### Any optional sections
-
+Utilized CI/CD concept, implemented the bug-free program by timely maintaining the code via writing functional test cases as well as deploying the integrated code to production-like environments
