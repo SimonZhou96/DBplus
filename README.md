@@ -1,51 +1,46 @@
-By default you should not change those functions of pre-defined in the given .h files.
-If you think some changes are really necessary, please contact us first.
+# Database Management System
 
-If you are not using CLion and want to use command line make tool:
 
- - Modify the "CODEROOT" variable in makefile.inc to point to the root
-  of your code base if you can't compile the code.
- 
- - Finish the Record-based Files (RBF) Component:
-   
-   Go to folder "rbf" and test in the following order:
-   ```
-   make clean
-   make
-   ./rbftest_update
-   ./rbftest_delete
-   ```
-  
- - and then implement the Relation Manager (RM):
+[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-   Go to folder "rm" and test in the following order:
+## Table of Contents
 
-   ```
-   make clean
-   make      
-   ./rmtest_create_tables
-   ./rmtest_00   
-   ./rmtest_01  
-   ./rmtest_02
-   ./rmtest_03
-   ./rmtest_04
-   ./rmtest_05
-   ./rmtest_06
-   ./rmtest_07
-   ./rmtest_08
-   ./rmtest_09
-   ./rmtest_10
-   ./rmtest_11
-   ./rmtest_12
-   ./rmtest_13
-   ./rmtest_13b
-   ./rmtest_14
-   ./rmtest_15
-   ./rmtest_extra_1
-   ./rmtest_extra_2
-   
-   ```
+- [Security](#security)
+- [Background](#background)
+- [Usage](#usage)
+- [API](#api)
+- [Contributing](#contributing)
 
-   The program should run. But initially it will generates an error. You are supposed to
-   implement the API of the rest of the methods in rbfm.h and methods in rm.h as explained 
-   in the project description.
+## Security
+There is a hidden page to store the page counter information, which is invisible to the user level
+Furthermore, in the level of catalog file. There are two system tables which are only visible for the system level.
+
+## Background
+Here is the herarchy that the DBplus system is using.
+
+### Any optional sections
+## Usage
+
+```
+```
+
+Note: The `license` badge image link at the top of this file should be updated with the correct `:user` and `:repo`.
+
+### Any optional sections
+
+## API
+
+### Any optional sections
+
+## More optional sections
+
+## Contributing
+
+See [the contributing file](CONTRIBUTING.md)!
+
+PRs accepted.
+
+Small note: If editing the Readme, please conform to the [standard-readme](https://github.com/RichardLitt/standard-readme) specification.
+
+### Any optional sections
+
