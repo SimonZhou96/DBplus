@@ -18,7 +18,8 @@ Furthermore, in the level of catalog file. There are two system tables which are
 ## Background
 Here is the herarchy that the DBplus system is using.
 ![image](https://user-images.githubusercontent.com/34784304/68452284-e536e380-01a6-11ea-8d75-ca83340d9fcc.png)
-The DBMS consisted of Record-based File Management, Relation Manager, B+ tree-based Index Manager and a pull-based Query Engine.
+
+The DBMS consisted of basic components such as Record-based File Management, Relation Manager, B+ tree-based Index Manager and a pull-based Query Engine.
 ### Any optional sections
 ## Usage
 The same as using C++(make + the test cases you wanna run)
