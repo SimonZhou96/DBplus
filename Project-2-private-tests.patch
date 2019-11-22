@@ -1,0 +1,1921 @@
+From d2fe151d0393ce1637d4a02744eec73c1dd0c677 Mon Sep 17 00:00:00 2001
+From: Yicong-Huang <hyc541978023@gmail.com>
+Date: Sat, 9 Nov 2019 09:08:15 -0800
+Subject: [PATCH] added Project 2 private tests
+
+---
+ rm/makefile       |  28 ++++-
+ rm/rm_test_util.h | 295 +++++++++++++++++++++++++++++++++++++++++++++-
+ rm/rmtest_p0.cc   | 129 ++++++++++++++++++++
+ rm/rmtest_p1.cc   | 180 ++++++++++++++++++++++++++++
+ rm/rmtest_p2.cc   | 203 +++++++++++++++++++++++++++++++
+ rm/rmtest_p3.cc   |  47 ++++++++
+ rm/rmtest_p4.cc   |  67 +++++++++++
+ rm/rmtest_p5.cc   |  83 +++++++++++++
+ rm/rmtest_p6.cc   | 187 +++++++++++++++++++++++++++++
+ rm/rmtest_p7.cc   |  71 +++++++++++
+ rm/rmtest_p8.cc   |  86 ++++++++++++++
+ rm/rmtest_p9.cc   | 124 +++++++++++++++++++
+ rm/rmtest_pex1.cc | 163 +++++++++++++++++++++++++
+ rm/rmtest_pex2.cc | 109 +++++++++++++++++
+ 14 files changed, 1769 insertions(+), 3 deletions(-)
+ create mode 100644 rm/rmtest_p0.cc
+ create mode 100644 rm/rmtest_p1.cc
+ create mode 100644 rm/rmtest_p2.cc
+ create mode 100644 rm/rmtest_p3.cc
+ create mode 100644 rm/rmtest_p4.cc
+ create mode 100644 rm/rmtest_p5.cc
+ create mode 100644 rm/rmtest_p6.cc
+ create mode 100644 rm/rmtest_p7.cc
+ create mode 100644 rm/rmtest_p8.cc
+ create mode 100644 rm/rmtest_p9.cc
+ create mode 100644 rm/rmtest_pex1.cc
+ create mode 100644 rm/rmtest_pex2.cc
+
+diff --git a/rm/makefile b/rm/makefile
+index badcd2b..148d881 100644
+--- a/rm/makefile
++++ b/rm/makefile
+@@ -1,6 +1,6 @@
+ include ../makefile.inc
+ 
+-all: librm.a rmtest_create_tables rmtest_delete_tables rmtest_00 rmtest_01 rmtest_02 rmtest_03 rmtest_04 rmtest_05 rmtest_06 rmtest_07 rmtest_08 rmtest_09 rmtest_10 rmtest_11 rmtest_12 rmtest_13 rmtest_13b rmtest_14 rmtest_15 rmtest_extra_1 rmtest_extra_2
++all: librm.a rmtest_create_tables rmtest_delete_tables rmtest_00 rmtest_01 rmtest_02 rmtest_03 rmtest_04 rmtest_05 rmtest_06 rmtest_07 rmtest_08 rmtest_09 rmtest_10 rmtest_11 rmtest_12 rmtest_13 rmtest_13b rmtest_14 rmtest_15 rmtest_extra_1 rmtest_extra_2 rmtest_p0 rmtest_p1 rmtest_p2 rmtest_p3 rmtest_p4 rmtest_p5 rmtest_p6 rmtest_p7 rmtest_p8 rmtest_p9 rmtest_pex1 rmtest_pex2
+ 
+ # lib file dependencies
+ librm.a: librm.a(rm.o)  # and possibly other .o files
+@@ -29,6 +29,18 @@ rmtest_extra_1.o: rm.h rm_test_util.h
+ rmtest_extra_2.o: rm.h rm_test_util.h
+ rmtest_create_tables.o: rm.h rm_test_util.h
+ rmtest_delete_tables.o: rm.h rm_test_util.h
++rmtest_p0.o: rm.h rm_test_util.h
++rmtest_p1.o: rm.h rm_test_util.h
++rmtest_p2.o: rm.h rm_test_util.h
++rmtest_p3.o: rm.h rm_test_util.h
++rmtest_p4.o: rm.h rm_test_util.h
++rmtest_p5.o: rm.h rm_test_util.h
++rmtest_p6.o: rm.h rm_test_util.h
++rmtest_p7.o: rm.h rm_test_util.h
++rmtest_p8.o: rm.h rm_test_util.h
++rmtest_p9.o: rm.h rm_test_util.h
++rmtest_pex1.o: rm.h rm_test_util.h
++rmtest_pex2.o: rm.h rm_test_util.h
+ 
+ # binary dependencies
+ rmtest_create_tables: rmtest_create_tables.o librm.a $(CODEROOT)/rbf/librbf.a
+@@ -52,6 +64,18 @@ rmtest_14: rmtest_14.o librm.a $(CODEROOT)/rbf/librbf.a
+ rmtest_15: rmtest_15.o librm.a $(CODEROOT)/rbf/librbf.a
+ rmtest_extra_1: rmtest_extra_1.o librm.a $(CODEROOT)/rbf/librbf.a
+ rmtest_extra_2: rmtest_extra_2.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p0: rmtest_p0.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p1: rmtest_p1.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p2: rmtest_p2.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p3: rmtest_p3.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p4: rmtest_p4.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p5: rmtest_p5.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p6: rmtest_p6.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p7: rmtest_p7.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p8: rmtest_p8.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_p9: rmtest_p9.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_pex1: rmtest_pex1.o librm.a $(CODEROOT)/rbf/librbf.a
++rmtest_pex2: rmtest_pex2.o librm.a $(CODEROOT)/rbf/librbf.a
+ 
+ # dependencies to compile used libraries
+ .PHONY: $(CODEROOT)/rbf/librbf.a
+@@ -61,6 +85,6 @@ $(CODEROOT)/rbf/librbf.a:
+ 
+ .PHONY: clean
+ clean:
+-	-rm rmtest_create_tables rmtest_delete_tables rmtest_00 rmtest_01 rmtest_02 rmtest_03 rmtest_04 rmtest_05 rmtest_06 rmtest_07 rmtest_08 rmtest_09 rmtest_10 rmtest_11 rmtest_12 rmtest_13 rmtest_13b rmtest_14 rmtest_15 rmtest_extra_1 rmtest_extra_2 *.a *.o *~ tbl_* Tables Columns rids_file sizes_file
++	-rm rmtest_create_tables rmtest_delete_tables rmtest_00 rmtest_01 rmtest_02 rmtest_03 rmtest_04 rmtest_05 rmtest_06 rmtest_07 rmtest_08 rmtest_09 rmtest_10 rmtest_11 rmtest_12 rmtest_13 rmtest_13b rmtest_14 rmtest_15 rmtest_extra_1 rmtest_extra_2 *.a *.o *~ tbl_* Tables Columns rids_file sizes_file rmtest_p0 rmtest_p1 rmtest_p2 rmtest_p3 rmtest_p4 rmtest_p5 rmtest_p6 rmtest_p7 rmtest_p8 rmtest_p9 rmtest_pex1 rmtest_pex2 user_ids_file
+ 
+ 	$(MAKE) -C $(CODEROOT)/rbf clean
+\ No newline at end of file
+diff --git a/rm/rm_test_util.h b/rm/rm_test_util.h
+index b59abd4..14c5e81 100644
+--- a/rm/rm_test_util.h
++++ b/rm/rm_test_util.h
+@@ -428,4 +428,297 @@ void readSizesFromDisk(std::vector<int> &sizes, int numRecords) {
+         sizesFile.close();
+     }
+ }
+-#endif
++
++
++// From here: functions required in the private test cases
++
++// Create a tweets table
++void createTweetTable(const std::string &tableName) {
++    std::cout << "***** Create a Tweet Table: " << tableName << " *****" << std::endl;
++
++    std::vector<Attribute> attrs;
++
++    Attribute attr;
++    attr.name = "tweetid";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    attrs.push_back(attr);
++
++    attr.name = "userid";
++    attr.type = TypeInt;
++    attr.length = (AttrLength) 4;
++    attrs.push_back(attr);
++
++    attr.name = "sender_location";
++    attr.type = TypeReal;
++    attr.length = (AttrLength) 4;
++    attrs.push_back(attr);
++
++    attr.name = "send_time";
++    attr.type = TypeReal;
++    attr.length = (AttrLength) 4;
++    attrs.push_back(attr);
++
++    attr.name = "referred_topics";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 100;
++    attrs.push_back(attr);
++
++    attr.name = "message_text";
++    attr.type = TypeVarChar;
++    attr.length = (AttrLength) 100;
++    attrs.push_back(attr);
++
++    RC rc = rm.createTable(tableName, attrs);
++    assert(rc == success && "createTable() should not fail.");
++    std::cout << "***** Table Created: " << tableName << " *****" << std::endl;
++}
++
++// Prepare the data in the correct form to be inserted/read
++void prepareTweetTuple(int attributeCount, unsigned char *nullAttributesIndicator, const int tweetid, const int userid,
++                       const float sender_location, const float send_time, const int referred_topicsLength,
++                       const std::string &referred_topics, const int message_textLength,
++                       const std::string &message_text, void *buffer, unsigned *recordSize) {
++
++    int offset = 0;
++
++    // Null-indicators
++    bool nullBit = false;
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attributeCount);
++
++    // Null-indicator for the fields
++    memcpy((char *) buffer + offset, nullAttributesIndicator, nullAttributesIndicatorActualSize);
++    offset += nullAttributesIndicatorActualSize;
++
++    // Beginning of the actual data
++    // Note that the left-most bit represents the first field. Thus, the offset is 7 from right, not 0.
++    // e.g., if a tuple consists of four attributes and they are all nulls, then the bit representation will be: [11110000]
++
++    // Is the tweetid field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 7);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &tweetid, sizeof(int));
++        offset += sizeof(int);
++    }
++
++    // Is the userid field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 6);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &userid, sizeof(int));
++        offset += sizeof(int);
++    }
++
++
++    // Is the sender_location field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 5);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &sender_location, sizeof(float));
++        offset += sizeof(float);
++    }
++
++
++    // Is the sender_time field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 4);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &send_time, sizeof(float));
++        offset += sizeof(float);
++    }
++
++
++    // Is the referred_topics field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 3);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &referred_topicsLength, sizeof(int));
++        offset += sizeof(int);
++        memcpy((char *) buffer + offset, referred_topics.c_str(), referred_topicsLength);
++        offset += referred_topicsLength;
++    }
++
++
++    // Is the message_text field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 2);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &message_textLength, sizeof(int));
++        offset += sizeof(int);
++        memcpy((char *) buffer + offset, message_text.c_str(), message_textLength);
++        offset += message_textLength;
++    }
++
++    *recordSize = offset;
++}
++
++void prepareTweetTupleAfterDrop(int attributeCount, unsigned char *nullAttributesIndicator, const int tweetid,
++                                const int userid, const float sender_location, const float send_time,
++                                const int message_textLength, const std::string &message_text, void *buffer,
++                                unsigned *recordSize) {
++
++    int offset = 0;
++
++    // Null-indicators
++    bool nullBit = false;
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attributeCount);
++
++    // Null-indicator for the fields
++    memcpy((char *) buffer + offset, nullAttributesIndicator, nullAttributesIndicatorActualSize);
++    offset += nullAttributesIndicatorActualSize;
++
++    // Beginning of the actual data
++    // Note that the left-most bit represents the first field. Thus, the offset is 7 from right, not 0.
++    // e.g., if a tuple consists of four attributes and they are all nulls, then the bit representation will be: [11110000]
++
++    // Is the tweetid field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 7);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &tweetid, sizeof(int));
++        offset += sizeof(int);
++    }
++
++    // Is the userid field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 6);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &userid, sizeof(int));
++        offset += sizeof(int);
++    }
++
++
++    // Is the sender_location field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 5);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &sender_location, sizeof(float));
++        offset += sizeof(float);
++    }
++
++
++    // Is the sender_time field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 4);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &send_time, sizeof(float));
++        offset += sizeof(float);
++    }
++
++
++    // Is the message_text field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 3);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &message_textLength, sizeof(int));
++        offset += sizeof(int);
++        memcpy((char *) buffer + offset, message_text.c_str(), message_textLength);
++        offset += message_textLength;
++    }
++
++    *recordSize = offset;
++}
++
++void prepareTweetTupleAfterAdd(int attributeCount, unsigned char *nullAttributesIndicator, const int tweetid,
++                               const int userid, const float sender_location, const float send_time,
++                               const int referred_topicsLength, const std::string &referred_topics,
++                               const int message_textLength, const std::string &message_text,
++                               const int status_msgLength, const std::string &status_msg, void *buffer,
++                               unsigned *recordSize) {
++
++    int offset = 0;
++
++    // Null-indicators
++    bool nullBit = false;
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attributeCount);
++
++    // Null-indicator for the fields
++    memcpy((char *) buffer + offset, nullAttributesIndicator, nullAttributesIndicatorActualSize);
++    offset += nullAttributesIndicatorActualSize;
++
++    // Beginning of the actual data
++    // Note that the left-most bit represents the first field. Thus, the offset is 7 from right, not 0.
++    // e.g., if a tuple consists of four attributes and they are all nulls, then the bit representation will be: [11110000]
++
++    // Is the tweetid field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 7);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &tweetid, sizeof(int));
++        offset += sizeof(int);
++    }
++
++    // Is the userid field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 6);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &userid, sizeof(int));
++        offset += sizeof(int);
++    }
++
++    // Is the sender_location field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 5);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &sender_location, sizeof(float));
++        offset += sizeof(float);
++    }
++
++    // Is the sender_time field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 4);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &send_time, sizeof(float));
++        offset += sizeof(float);
++    }
++
++    // Is the referred_topics field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 3);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &referred_topicsLength, sizeof(int));
++        offset += sizeof(int);
++        memcpy((char *) buffer + offset, referred_topics.c_str(), referred_topicsLength);
++        offset += referred_topicsLength;
++    }
++
++    // Is the message_text field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 2);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &message_textLength, sizeof(int));
++        offset += sizeof(int);
++        memcpy((char *) buffer + offset, message_text.c_str(), message_textLength);
++        offset += message_textLength;
++    }
++
++    // Is the status_msg field not-NULL?
++    nullBit = nullAttributesIndicator[0] & ((unsigned) 1 << (unsigned) 1);
++    if (!nullBit) {
++        memcpy((char *) buffer + offset, &status_msgLength, sizeof(int));
++        offset += sizeof(int);
++        memcpy((char *) buffer + offset, status_msg.c_str(), status_msgLength);
++        offset += status_msgLength;
++    }
++
++    *recordSize = offset;
++}
++
++// Write UserIDs to a disk - do not use this code.
++//This is not a page-based operation. For test purpose only.
++void writeUserIdsToDisk(set<int> &userIds) {
++    set<int>::iterator it;
++    remove("user_ids_file");
++    ofstream user_idsFile("user_ids_file", ios::out | ios::trunc | ios::binary);
++
++    if (user_idsFile.is_open()) {
++        user_idsFile.seekp(0, ios::beg);
++        for (it = userIds.begin(); it != userIds.end(); ++it) {
++            user_idsFile.write(reinterpret_cast<const char *>(&*it), sizeof(int));
++        }
++        user_idsFile.close();
++    }
++}
++
++// Read ages from the disk - do not use this code.
++//This is not a page-based operation. For test purpose only.
++void readUserIdsFromDisk(set<int> &userids, int numRecords) {
++    int userid;
++
++    ifstream user_idsFile("user_ids_file", ios::in | ios::binary);
++    if (user_idsFile.is_open()) {
++
++        user_idsFile.seekg(0, ios::beg);
++        for (int i = 0; i < numRecords; i++) {
++            user_idsFile.read(reinterpret_cast<char *>(&userid), sizeof(int));
++            userids.insert(userid);
++        }
++        user_idsFile.close();
++    }
++}
++
++#endif
+\ No newline at end of file
+diff --git a/rm/rmtest_p0.cc b/rm/rmtest_p0.cc
+new file mode 100644
+index 0000000..36d4fa7
+--- /dev/null
++++ b/rm/rmtest_p0.cc
+@@ -0,0 +1,129 @@
++#include "rm_test_util.h"
++
++int TEST_RM_PRIVATE_0(const std::string &tableName) {
++    // Functions tested
++    // 1. Insert 10000 Tuples 
++    // 2. Scan Table (with condition on varchar attr)
++    // 3. Delete Table 
++    std::cout << std::endl << "***** In RM Test Case Private 0 *****" << std::endl;
++    rm.deleteTable(tableName);
++    createTable(tableName);
++
++    RID rid;
++    unsigned tupleSize = 0;
++    int numTuples = 10000;
++    void *tuple;
++    void *returnedData = malloc(100);
++    RC rc = 0;
++
++    // GetAttributes
++    std::vector<Attribute> attrs;
++    rc = rm.getAttributes(tableName, attrs);
++    assert(rc == success && "RelationManager::getAttributes() should not fail.");
++
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attrs.size());
++    auto *nullsIndicator = (unsigned char *) malloc(nullAttributesIndicatorActualSize);
++    memset(nullsIndicator, 0, nullAttributesIndicatorActualSize);
++
++    RID rids[numTuples];
++    std::vector<char *> tuples;
++    std::set<int> ages;
++    for (int i = 0; i < numTuples; i++) {
++        tuple = malloc(100);
++
++        // Insert Tuple
++        auto height = (float) i;
++        int age = i;
++
++        std::string name;
++        if (i % 2 == 0) {
++            name = "aaa";
++        } else {
++            name = "bbb";
++        }
++        prepareTuple(attrs.size(), nullsIndicator, name.size(), name, age, height, 2000 + i, tuple, &tupleSize);
++        ages.insert(age);
++        rc = rm.insertTuple(tableName, tuple, rid);
++        assert(rc == success && "RelationManager::insertTuple() should not fail.");
++
++        tuples.push_back((char *) tuple);
++        rids[i] = rid;
++    }
++    std::cout << "All records have been processed." << std::endl;
++
++    // Set up the iterator
++    RM_ScanIterator rmsi;
++    std::string attr = "EmpName";
++    std::vector<std::string> attributes;
++    attributes.emplace_back("Age");
++
++    void *value = malloc(7);
++    std::string name = "aaa";
++    int nameLength = 3;
++
++    memcpy((char *) value, &nameLength, 4);
++    memcpy((char *) value + 4, name.c_str(), nameLength);
++
++    rc = rm.scan(tableName, attr, EQ_OP, value, attributes, rmsi);
++    if (rc != success) {
++        free(returnedData);
++        for (int i = 0; i < numTuples; i++) {
++            free(tuples[i]);
++        }
++        std::cout << "***** RM Test Case Private 0 failed. *****" << std::endl << std::endl;
++        return -1;
++    }
++    int counter = 0;
++    int ageReturned = 0;
++
++    while (rmsi.getNextTuple(rid, returnedData) != RM_EOF) {
++        ageReturned = *(int *) ((char *) returnedData + 1);
++        if (ageReturned % 2 != 0) {
++            std::cout << "***** A returned value is not correct. RM Test Case Private 0 failed. *****" << std::endl
++                      << std::endl;
++            rmsi.close();
++            free(returnedData);
++            for (int i = 0; i < numTuples; i++) {
++                free(tuples[i]);
++            }
++            return -1;
++        }
++        counter++;
++    }
++    rmsi.close();
++
++    if (counter != numTuples / 2) {
++        std::cout << "***** The number of returned tuples:" << counter << ". RM Test Case Private 0 failed. *****"
++                  << std::endl << std::endl;
++        free(returnedData);
++        for (int i = 0; i < numTuples; i++) {
++            free(tuples[i]);
++        }
++        return -1;
++    }
++
++    // Delete a Table
++    rc = rm.deleteTable(tableName);
++    if (rc != success) {
++        std::cout << "***** RelationManager::deleteTale() should not fail. RM Test Case Private 0 failed. *****"
++                  << std::endl << std::endl;
++        free(returnedData);
++        for (int i = 0; i < numTuples; i++) {
++            free(tuples[i]);
++        }
++        return -1;
++    }
++
++    free(returnedData);
++    for (int i = 0; i < numTuples; i++) {
++        free(tuples[i]);
++    }
++    std::cout << "***** RM Test Case Private 0 finished. The result will be examined. *****" << std::endl << std::endl;
++    return 0;
++}
++
++int main() {
++
++    return TEST_RM_PRIVATE_0("tbl_private_0");
++
++}
+diff --git a/rm/rmtest_p1.cc b/rm/rmtest_p1.cc
+new file mode 100644
+index 0000000..7c94e9d
+--- /dev/null
++++ b/rm/rmtest_p1.cc
+@@ -0,0 +1,180 @@
++#include "rm_test_util.h"
++
++RC TEST_RM_PRIVATE_1(const std::string &tableName) {
++    // Functions tested
++    // 1. Insert 100,000 tuples
++    // 2. Read Attribute
++    std::cout << std::endl << "***** In RM Test Case Private 1 *****" << std::endl;
++
++    rm.deleteTable(tableName);
++    createTweetTable(tableName);
++    RID rid;
++    unsigned tupleSize = 0;
++    int numTuples = 100000;
++    void *tuple;
++    void *returnedData = malloc(300);
++
++    std::vector<RID> rids;
++    std::vector<char *> tuples;
++    std::set<int> user_ids;
++    RC rc = 0;
++
++    // GetAttributes
++    std::vector<Attribute> attrs;
++    rc = rm.getAttributes(tableName, attrs);
++    assert(rc == success && "RelationManager::getAttributes() should not fail.");
++
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attrs.size());
++    auto *nullsIndicator = (unsigned char *) malloc(nullAttributesIndicatorActualSize);
++    memset(nullsIndicator, 0, nullAttributesIndicatorActualSize);
++
++    for (int i = 0; i < numTuples; i++) {
++        tuple = malloc(300);
++
++        // Insert Tuple
++        auto sender_location = (float) i;
++        float send_time = (float) i + 2000;
++        int tweetid = i;
++        int userid = i + i % 100;
++        std::stringstream ss;
++        ss << std::setw(5) << std::setfill('0') << i;
++        std::string msg = "Txt" + ss.str();
++        std::string referred_topics = "Rft" + ss.str();
++
++        prepareTweetTuple(attrs.size(), nullsIndicator, tweetid, userid, sender_location, send_time,
++                          referred_topics.size(), referred_topics, msg.size(), msg, tuple, &tupleSize);
++
++        user_ids.insert(userid);
++        rc = rm.insertTuple(tableName, tuple, rid);
++        assert(rc == success && "RelationManager::insertTuple() should not fail.");
++
++        tuples.push_back((char *) tuple);
++        rids.push_back(rid);
++
++        if (i % 10000 == 0) {
++            std::cout << (i + 1) << "/" << numTuples << " records have been inserted so far." << std::endl;
++        }
++    }
++    std::cout << "All records have been inserted." << std::endl;
++
++    // Required for the other tests
++    writeRIDsToDisk(rids);
++    writeUserIdsToDisk(user_ids);
++
++    std::cout << "Start record checking..." << std::endl;
++
++    bool testFail = false;
++    std::string attributeName;
++
++    for (int i = 0; i < numTuples; i = i + 10) {
++        int attrID = rand() % 6;
++        if (attrID == 0) {
++            attributeName = "tweetid";
++        } else if (attrID == 1) {
++            attributeName = "userid";
++        } else if (attrID == 2) {
++            attributeName = "sender_location";
++        } else if (attrID == 3) {
++            attributeName = "send_time";
++        } else if (attrID == 4) {
++            attributeName = "referred_topics";
++        } else if (attrID == 5) {
++            attributeName = "message_text";
++        }
++        rc = rm.readAttribute(tableName, rids[i], attributeName, returnedData);
++        assert(rc == success && "RelationManager::readAttribute() should not fail.");
++
++        int value = 0;
++        float fvalue = 0;
++        std::stringstream ss;
++        ss << std::setw(5) << std::setfill('0') << i;
++        std::string msgToCheck = "Txt" + ss.str();
++        std::string referred_topicsToCheck = "Rft" + ss.str();
++
++        // tweetid
++        if (attrID == 0) {
++            if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(i) + 1), 4) != 0) {
++                testFail = true;
++            } else {
++                value = *(int *) ((char *) returnedData + 1);
++                if (value != i) {
++                    testFail = true;
++                }
++            }
++            // userid
++        } else if (attrID == 1) {
++            if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(i) + 5), 4) != 0) {
++                testFail = true;
++            } else {
++                value = *(int *) ((char *) returnedData + 1);
++                if (value != (i + i % 100)) {
++                    testFail = true;
++                }
++            }
++            // sender_location
++        } else if (attrID == 2) {
++            if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(i) + 9), 4) != 0) {
++                testFail = true;
++            } else {
++                fvalue = *(float *) ((char *) returnedData + 1);
++                if (fvalue != (float) i) {
++                    testFail = true;
++                }
++            }
++            // send_time
++        } else if (attrID == 3) {
++            if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(i) + 13), 4) != 0) {
++                testFail = true;
++            }
++            // referred_topics
++        } else if (attrID == 4) {
++            if (memcmp(((char *) returnedData + 5), ((char *) tuples.at(i) + 21), 8) != 0) {
++                testFail = true;
++            } else {
++                std::string strToCheck(((char *) returnedData + 5), 8);
++                if (strToCheck != referred_topicsToCheck) {
++                    testFail = true;
++                }
++            }
++            // message_text
++        } else if (attrID == 5) {
++            if (memcmp(((char *) returnedData + 5), ((char *) tuples.at(i) + 33), 8) != 0) {
++                testFail = true;
++            } else {
++                std::string strToCheck(((char *) returnedData + 5), 8);
++                if (strToCheck != msgToCheck) {
++                    testFail = true;
++                }
++            }
++        }
++
++        if (testFail) {
++            std::cout << "***** RM Test Case Private 1 failed on " << i << "th tuple - attr: " << attrID << "*****"
++                      << std::endl << std::endl;
++            free(returnedData);
++            for (int j = 0; j < numTuples; j++) {
++                free(tuples[j]);
++            }
++            rm.deleteTable(tableName);
++            remove("rids_file");
++            remove("user_ids_file");
++
++            return -1;
++        }
++
++    }
++
++    free(returnedData);
++    for (int i = 0; i < numTuples; i++) {
++        free(tuples[i]);
++    }
++
++    std::cout << "***** RM Test Case Private 1 finished. The result will be examined. *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++
++    return TEST_RM_PRIVATE_1("tbl_private_1");
++}
+diff --git a/rm/rmtest_p2.cc b/rm/rmtest_p2.cc
+new file mode 100644
+index 0000000..c233b00
+--- /dev/null
++++ b/rm/rmtest_p2.cc
+@@ -0,0 +1,203 @@
++#include "rm_test_util.h"
++#include <random>
++
++RC TEST_RM_PRIVATE_2(const std::string &tableName) {
++    // Functions tested
++    // 1. Insert 100000 Tuples - with null values
++    // 2. Read Attribute
++    std::cout << std::endl << "***** In RM Test Case Private 2 *****" << std::endl;
++
++    RID rid;
++    unsigned tupleSize = 0;
++    int numTuples = 100000;
++    void *tuple;
++    void *returnedData = malloc(300);
++
++    std::vector<RID> rids;
++    std::vector<char *> tuples;
++    RC rc = 0;
++
++    // GetAttributes
++    std::vector<Attribute> attrs;
++    rc = rm.getAttributes(tableName, attrs);
++    assert(rc == success && "RelationManager::getAttributes() should not fail.");
++
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attrs.size());
++    auto *nullsIndicator = (unsigned char *) malloc(nullAttributesIndicatorActualSize);
++    auto *nullsIndicatorWithNulls = (unsigned char *) malloc(nullAttributesIndicatorActualSize);
++    memset(nullsIndicator, 0, nullAttributesIndicatorActualSize);
++    memset(nullsIndicatorWithNulls, 0, nullAttributesIndicatorActualSize);
++    nullsIndicatorWithNulls[0] = 172;   // 10101100- the 1st, 3rd, 5th, and 6th columns are null.
++    // - userid, sender_location, referred_topics, and message_text
++
++    for (int i = 0; i < numTuples; i++) {
++        tuple = malloc(300);
++
++        // Insert Tuple
++        auto sender_location = (float) i;
++        float send_time = (float) i + 2000;
++        int tweetid = i;
++        int userid = i;
++        std::stringstream ss;
++        ss << std::setw(5) << std::setfill('0') << i;
++        std::string msg = "Msg" + ss.str();
++        std::string referred_topics = "Rto" + ss.str();
++
++        // There will be some tuples with nulls.
++        if (i % 35 == 0) {
++            prepareTweetTuple(attrs.size(), nullsIndicatorWithNulls, tweetid, userid, sender_location, send_time,
++                              referred_topics.size(), referred_topics, msg.size(), msg, tuple, &tupleSize);
++        } else {
++            prepareTweetTuple(attrs.size(), nullsIndicator, tweetid, userid, sender_location, send_time,
++                              referred_topics.size(), referred_topics, msg.size(), msg, tuple, &tupleSize);
++        }
++
++        rc = rm.insertTuple(tableName, tuple, rid);
++        assert(rc == success && "RelationManager::insertTuple() should not fail.");
++
++        tuples.push_back((char *) tuple);
++        rids.push_back(rid);
++
++        if (i % 10000 == 0) {
++            std::cout << (i + 1) << "/" << numTuples << " records have been inserted so far." << std::endl;
++        }
++    }
++    std::cout << "All records have been inserted." << std::endl;
++
++    std::cout << "Start record checking..." << std::endl;
++
++    bool testFail = false;
++    bool nullBit;
++    std::random_device rd;
++    std::mt19937 mt(rd());
++    std::uniform_real_distribution<double> dist(0, 6);
++    std::uniform_real_distribution<double> dist2(0, 4);
++
++    for (int i = 0; i < numTuples; i++) {
++        int attrID = dist(mt);
++        std::string attributeName;
++
++        // Force attrID to be the ID that contains NULL when a i % 35 is 0.
++        if (i % 35 == 0) {
++            int k = dist2(mt);
++            attrID = (k % 4 == 0) ? 0 : (k % 4 == 1) ? 2 : (k % 4 == 2) ? 4 : 5;
++
++        }
++
++        if (attrID == 0) {
++            attributeName = "tweetid";
++        } else if (attrID == 1) {
++            attributeName = "userid";
++        } else if (attrID == 2) {
++            attributeName = "sender_location";
++        } else if (attrID == 3) {
++            attributeName = "send_time";
++        } else if (attrID == 4) {
++            attributeName = "referred_topics";
++        } else if (attrID == 5) {
++            attributeName = "message_text";
++        }
++        rc = rm.readAttribute(tableName, rids[i], attributeName, returnedData);
++        assert(rc == success && "RelationManager::readAttribute() should not fail.");
++
++        // NULL indicator should say that a NULL value is returned.
++        if (i % 35 == 0) {
++            nullBit = *(unsigned char *) ((char *) returnedData) & ((unsigned) 1 << (unsigned) 7);
++            if (!nullBit) {
++                std::cout << "A returned value from a readAttribute() is not correct: attrID - " << attrID << std::endl;
++                testFail = true;
++            }
++        } else {
++            int value = 0;
++            float fvalue = 0;
++            std::stringstream ss;
++            ss << std::setw(5) << std::setfill('0') << i;
++            std::string msgToCheck = "Msg" + ss.str();
++            std::string referred_topicsToCheck = "Rto" + ss.str();
++
++            // tweetid
++            if (attrID == 0) {
++                if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(i) + 1), 4) != 0) {
++                    testFail = true;
++                } else {
++                    value = *(int *) ((char *) returnedData + 1);
++                    if (value != i) {
++                        testFail = true;
++                    }
++                }
++                // userid
++            } else if (attrID == 1) {
++                if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(i) + 5), 4) != 0) {
++                    testFail = true;
++                } else {
++                    value = *(int *) ((char *) returnedData + 1);
++                    if (value != i) {
++                        testFail = true;
++                    }
++                }
++                // sender_location
++            } else if (attrID == 2) {
++                if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(i) + 9), 4) != 0) {
++                    testFail = true;
++                } else {
++                    fvalue = *(float *) ((char *) returnedData + 1);
++                    if (fvalue != (float) i) {
++                        testFail = true;
++                    }
++                }
++                // send_time
++            } else if (attrID == 3) {
++                if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(i) + 13), 4) != 0) {
++                    testFail = true;
++                }
++                // referred_topics
++            } else if (attrID == 4) {
++                if (memcmp(((char *) returnedData + 5), ((char *) tuples.at(i) + 21), 8) != 0) {
++                    testFail = true;
++                } else {
++                    std::string strToCheck(((char *) returnedData + 5), 8);
++                    if (strToCheck != referred_topicsToCheck) {
++                        testFail = true;
++                    }
++                }
++                // message_text
++            } else if (attrID == 5) {
++                if (memcmp(((char *) returnedData + 5), ((char *) tuples.at(i) + 33), 8) != 0) {
++                    testFail = true;
++                } else {
++                    std::string strToCheck(((char *) returnedData + 5), 8);
++                    if (strToCheck != msgToCheck) {
++                        testFail = true;
++                    }
++                }
++            }
++        }
++
++        if (testFail) {
++            std::cout << "***** RM Test Case Private 2 failed on the tuple #" << i << " - attrID: " << attrID << "*****"
++                      << std::endl << std::endl;
++            free(returnedData);
++            for (int j = 0; j < numTuples; j++) {
++                free(tuples[j]);
++            }
++            rm.deleteTable(tableName);
++
++            return -1;
++        }
++
++    }
++
++    free(returnedData);
++    for (int i = 0; i < numTuples; i++) {
++        free(tuples[i]);
++    }
++
++    std::cout << "***** RM Test Case Private 2 finished. The result will be examined. *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++    createTweetTable("tbl_private_2");
++    return TEST_RM_PRIVATE_2("tbl_private_2");
++}
+diff --git a/rm/rmtest_p3.cc b/rm/rmtest_p3.cc
+new file mode 100644
+index 0000000..655f8e1
+--- /dev/null
++++ b/rm/rmtest_p3.cc
+@@ -0,0 +1,47 @@
++#include "rm_test_util.h"
++
++RC TEST_RM_PRIVATE_3(const std::string &tableName) {
++    // Functions tested
++    // 1. Simple Scan
++    std::cout << std::endl << "***** In RM Test Case Private 3 *****" << std::endl;
++
++    RID rid;
++    int numTuples = 100000;
++    void *returnedData = malloc(300);
++    std::set<int> user_ids;
++
++    // Read UserIds that was created in the private test 1
++    readUserIdsFromDisk(user_ids, numTuples);
++
++    // Set up the iterator
++    RM_ScanIterator rmsi;
++    std::string attr = "userid";
++    std::vector<std::string> attributes;
++    attributes.push_back(attr);
++    RC rc = rm.scan(tableName, "", NO_OP, NULL, attributes, rmsi);
++    if (rc != success) {
++        std::cout << "***** RM Test Case Private 3 failed. *****" << std::endl << std::endl;
++        return -1;
++    }
++
++    int userid = 0;
++    while (rmsi.getNextTuple(rid, returnedData) != RM_EOF) {
++        userid = *(int *) ((char *) returnedData + 1);
++
++        if (user_ids.find(userid) == user_ids.end()) {
++            std::cout << "***** RM Test Case Private 3 failed. *****" << std::endl << std::endl;
++            rmsi.close();
++            free(returnedData);
++            return -1;
++        }
++    }
++    rmsi.close();
++    free(returnedData);
++
++    std::cout << "***** RM Test Case Private 3 finished. The result will be examined. *****" << std::endl << std::endl;
++    return 0;
++}
++
++int main() {
++    return TEST_RM_PRIVATE_3("tbl_private_1");
++}
+diff --git a/rm/rmtest_p4.cc b/rm/rmtest_p4.cc
+new file mode 100644
+index 0000000..20ca691
+--- /dev/null
++++ b/rm/rmtest_p4.cc
+@@ -0,0 +1,67 @@
++#include "rm_test_util.h"
++
++int TEST_RM_PRIVATE_4(const std::string &tableName) {
++    // Functions tested
++    // 1. Scan Table (VarChar)
++    std::cout << std::endl << "***** In RM Test Case Private 4 *****" << std::endl;
++
++    RID rid;
++    std::vector<std::string> attributes;
++    void *returnedData = malloc(300);
++
++    void *value = malloc(16);
++    std::string msg = "Txt00250";
++    int msgLength = 8;
++
++    memcpy((char *) value, &msgLength, 4);
++    memcpy((char *) value + 4, msg.c_str(), msgLength);
++
++    std::string attr = "message_text";
++    attributes.emplace_back("sender_location");
++    attributes.emplace_back("send_time");
++
++    RM_ScanIterator rmsi2;
++    RC rc = rm.scan(tableName, attr, LT_OP, value, attributes, rmsi2);
++    if (rc != success) {
++        free(returnedData);
++        std::cout << "***** RM Test Case Private 4 failed. *****" << std::endl << std::endl;
++        return -1;
++    }
++
++    float sender_location;
++    float send_time;
++
++    int counter = 0;
++    while (rmsi2.getNextTuple(rid, returnedData) != RM_EOF) {
++        counter++;
++
++        sender_location = *(float *) ((char *) returnedData + 1);
++        send_time = *(float *) ((char *) returnedData + 5);
++        if (!(sender_location >= 0.0 || sender_location <= 249.0 || send_time >= 2000.0 || send_time <= 2249.0)) {
++            std::cout << "***** A wrong entry was returned. RM Test Case Private 4 failed *****" << std::endl
++                      << std::endl;
++            rmsi2.close();
++            free(returnedData);
++            free(value);
++            return -1;
++        }
++    }
++
++    rmsi2.close();
++    free(returnedData);
++    free(value);
++
++    if (counter != 250) {
++        std::cout << "***** The number of returned tuple: " << counter
++                  << " is not correct. RM Test Case Private 4 failed *****" << std::endl << std::endl;
++    } else {
++        std::cout << "***** RM Test Case Private 4 finished. The result will be examined. *****" << std::endl
++                  << std::endl;
++    }
++    return 0;
++}
++
++int main() {
++    return TEST_RM_PRIVATE_4("tbl_private_1");
++
++}
+diff --git a/rm/rmtest_p5.cc b/rm/rmtest_p5.cc
+new file mode 100644
+index 0000000..c891c7e
+--- /dev/null
++++ b/rm/rmtest_p5.cc
+@@ -0,0 +1,83 @@
++#include "rm_test_util.h"
++
++int TEST_RM_PRIVATE_5(const std::string &tableName) {
++    // Functions tested
++    // 1. Scan Table (VarChar with Nulls)
++    std::cout << std::endl << "***** In RM Test Case Private 5 *****" << std::endl;
++
++    RID rid;
++    std::vector<std::string> attributes;
++    void *returnedData = malloc(300);
++
++    void *value = malloc(16);
++    std::string msg = "Msg00250";
++    int msgLength = 8;
++
++    memcpy((char *) value, &msgLength, 4);
++    memcpy((char *) value + 4, msg.c_str(), msgLength);
++
++    std::string attr = "message_text";
++    attributes.emplace_back("sender_location");
++    attributes.emplace_back("send_time");
++
++    RM_ScanIterator rmsi2;
++    RC rc = rm.scan(tableName, attr, LT_OP, value, attributes, rmsi2);
++    if (rc != success) {
++        free(returnedData);
++        std::cout << "***** RM Test Case Private 5 failed. *****" << std::endl << std::endl;
++        return -1;
++    }
++
++    float sender_location;
++    float send_time;
++    bool nullBit;
++    int counter = 0;
++
++    while (rmsi2.getNextTuple(rid, returnedData) != RM_EOF) {
++
++        // There are 2 tuples whose message_text value is NULL
++        // For these tuples, send_time is also NULL. These NULLs should not be returned.
++        nullBit = *(unsigned char *) ((char *) returnedData) & ((unsigned) 1 << (unsigned) 6);
++
++        if (nullBit) {
++            std::cout << "***** A wrong entry was returned. RM Test Case Private 5 failed *****" << std::endl
++                      << std::endl;
++            rmsi2.close();
++            free(returnedData);
++            free(value);
++            return -1;
++        }
++        counter++;
++
++        sender_location = *(float *) ((char *) returnedData + 1);
++        send_time = *(float *) ((char *) returnedData + 5);
++
++        if (!(sender_location >= 0.0 || sender_location <= 249.0 || send_time >= 2000.0 || send_time <= 2249.0)) {
++            std::cout << "***** A wrong entry was returned. RM Test Case Private 5 failed *****" << std::endl
++                      << std::endl;
++            rmsi2.close();
++            free(returnedData);
++            free(value);
++            return -1;
++        }
++    }
++
++    rmsi2.close();
++    free(returnedData);
++    free(value);
++
++    if (counter != 242) {
++        std::cout << "***** The number of returned tuple: " << counter
++                  << " is not correct. RM Test Case Private 5 failed *****" << std::endl << std::endl;
++    } else {
++        std::cout << "***** RM Test Case Private 5 finished. The result will be examined. *****" << std::endl
++                  << std::endl;
++    }
++    return 0;
++}
++
++int main() {
++    // Using a table with Null values
++    return TEST_RM_PRIVATE_5("tbl_private_2");
++
++}
+diff --git a/rm/rmtest_p6.cc b/rm/rmtest_p6.cc
+new file mode 100644
+index 0000000..02ebe04
+--- /dev/null
++++ b/rm/rmtest_p6.cc
+@@ -0,0 +1,187 @@
++#include "rm_test_util.h"
++#include <random>
++
++RC TEST_RM_PRIVATE_6(const std::string &tableName) {
++    // Functions tested
++    // 1. Update tuples
++    // 2. Read Attribute
++    std::cout << std::endl << "***** In RM Test Case Private 6 *****" << std::endl;
++
++    unsigned tupleSize = 0;
++    int numTuples = 100000;
++    void *tuple;
++    void *returnedData = malloc(300);
++
++    std::vector<RID> rids;
++    std::vector<char *> tuples;
++    std::set<int> user_ids;
++    RC rc = 0;
++
++    readRIDsFromDisk(rids, numTuples);
++
++    // GetAttributes
++    std::vector<Attribute> attrs;
++    rc = rm.getAttributes(tableName, attrs);
++    assert(rc == success && "RelationManager::getAttributes() should not fail.");
++
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attrs.size());
++    auto *nullsIndicator = (unsigned char *) malloc(nullAttributesIndicatorActualSize);
++    memset(nullsIndicator, 0, nullAttributesIndicatorActualSize);
++
++    int updateCount = 0;
++
++    for (int i = 0; i < numTuples; i = i + 50) {
++        tuple = malloc(300);
++
++        // Update Tuple
++        float sender_location = (float) i + 2100;
++        float send_time = (float) i + 4900;
++        int tweetid = i;
++        int userid = i + i % 222;
++        std::stringstream ss;
++        ss << std::setw(5) << std::setfill('0') << i;
++        std::string msg = "UpdatedMsg" + ss.str();
++        std::string referred_topics = "UpdatedRto" + ss.str();
++
++        prepareTweetTuple(attrs.size(), nullsIndicator, tweetid, userid, sender_location, send_time,
++                          referred_topics.size(), referred_topics, msg.size(), msg, tuple, &tupleSize);
++
++        // Update tuples
++        rc = rm.updateTuple(tableName, tuple, rids[i]);
++        assert(rc == success && "RelationManager::updateTuple() should not fail.");
++
++        if (i % 10000 == 0) {
++            std::cout << (i + 1) << "/" << numTuples << " records have been processed so far." << std::endl;
++        }
++        updateCount++;
++
++        tuples.push_back((char *) tuple);
++    }
++    std::cout << "All records have been processed - update count: " << updateCount << std::endl;
++
++    bool testFail = false;
++    std::string attributeName;
++
++    int readCount = 0;
++    std::random_device rd;
++    std::mt19937 mt(rd());
++    std::uniform_real_distribution<double> dist(0, 6);
++    // Integrity check
++    for (int i = 0; i < numTuples; i = i + 50) {
++        int attrID = dist(mt);
++        if (attrID == 0) {
++            attributeName = "tweetid";
++        } else if (attrID == 1) {
++            attributeName = "userid";
++        } else if (attrID == 2) {
++            attributeName = "sender_location";
++        } else if (attrID == 3) {
++            attributeName = "send_time";
++        } else if (attrID == 4) {
++            attributeName = "referred_topics";
++        } else if (attrID == 5) {
++            attributeName = "message_text";
++        }
++        rc = rm.readAttribute(tableName, rids[i], attributeName, returnedData);
++        assert(rc == success && "RelationManager::readAttribute() should not fail.");
++
++        int value = 0;
++        float fvalue = 0;
++        std::stringstream ss;
++        ss << std::setw(5) << std::setfill('0') << i;
++        std::string msgToCheck = "UpdatedMsg" + ss.str();
++        std::string referred_topicsToCheck = "UpdatedRto" + ss.str();
++
++        // tweetid
++        if (attrID == 0) {
++            if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(readCount) + 1), 4) != 0) {
++                testFail = true;
++            } else {
++                value = *(int *) ((char *) returnedData + 1);
++                if (value != i) {
++                    testFail = true;
++                }
++            }
++            // userid
++        } else if (attrID == 1) {
++            if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(readCount) + 5), 4) != 0) {
++                testFail = true;
++            } else {
++                value = *(int *) ((char *) returnedData + 1);
++                if (value != (i + i % 222)) {
++                    testFail = true;
++                }
++            }
++            // sender_location
++        } else if (attrID == 2) {
++            if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(readCount) + 9), 4) != 0) {
++                testFail = true;
++            } else {
++                fvalue = *(float *) ((char *) returnedData + 1);
++                if (fvalue != ((float) i + 2100)) {
++                    testFail = true;
++                }
++            }
++            // send_time
++        } else if (attrID == 3) {
++            if (memcmp(((char *) returnedData + 1), ((char *) tuples.at(readCount) + 13), 4) != 0) {
++                testFail = true;
++            } else {
++                fvalue = *(float *) ((char *) returnedData + 1);
++                if (fvalue != ((float) i + 4900)) {
++                    testFail = true;
++                }
++            }
++
++            // referred_topics
++        } else if (attrID == 4) {
++            if (memcmp(((char *) returnedData + 5), ((char *) tuples.at(readCount) + 21), 15) != 0) {
++                testFail = true;
++            } else {
++                std::string strToCheck(((char *) returnedData + 5), 15);
++                if (strToCheck != referred_topicsToCheck) {
++                    testFail = true;
++                }
++            }
++            // message_text
++        } else if (attrID == 5) {
++            if (memcmp(((char *) returnedData + 5), ((char *) tuples.at(readCount) + 40), 15) != 0) {
++                testFail = true;
++            } else {
++                std::string strToCheck(((char *) returnedData + 5), 15);
++                if (strToCheck != msgToCheck) {
++                    testFail = true;
++                }
++            }
++        }
++
++        if (testFail) {
++            std::cout << "***** RM Test Case Private 6 failed on " << i << "th tuple - attr: " << attrID << "*****"
++                      << std::endl << std::endl;
++            free(returnedData);
++            for (int j = 0; j < numTuples; j++) {
++                free(tuples[j]);
++            }
++            rm.deleteTable(tableName);
++            remove("rids_file");
++            remove("user_ids_file");
++
++            return -1;
++        }
++        readCount++;
++    }
++
++    free(returnedData);
++    for (int i = 0; i < updateCount; i++) {
++        free(tuples[i]);
++    }
++
++    std::cout << "***** RM Test Case Private 6 finished. The result will be examined. *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++    return TEST_RM_PRIVATE_6("tbl_private_1");
++
++}
+diff --git a/rm/rmtest_p7.cc b/rm/rmtest_p7.cc
+new file mode 100644
+index 0000000..c2b7bb7
+--- /dev/null
++++ b/rm/rmtest_p7.cc
+@@ -0,0 +1,71 @@
++#include "rm_test_util.h"
++
++int TEST_RM_PRIVATE_7(const std::string &tableName) {
++    // Functions tested
++    // 1. Scan Table
++    std::cout << std::endl << "***** In RM Test Case Private 7 *****" << std::endl;
++
++    RID rid;
++    std::vector<std::string> attributes;
++    void *returnedData = malloc(300);
++
++    void *value = malloc(20);
++    std::string msg = "UpdatedMsg00100";
++    int msgLength = 15;
++
++    memcpy((char *) value, &msgLength, 4);
++    memcpy((char *) value + 4, msg.c_str(), msgLength);
++
++    std::string attr = "message_text";
++    attributes.emplace_back("sender_location");
++    attributes.emplace_back("send_time");
++
++    RM_ScanIterator rmsi2;
++    RC rc = rm.scan(tableName, attr, EQ_OP, value, attributes, rmsi2);
++    if (rc != success) {
++        free(returnedData);
++        std::cout << "***** RM Test Case Private 7 failed. *****" << std::endl << std::endl;
++        return -1;
++    }
++
++    float sender_location;
++    float send_time;
++    int counter = 0;
++
++    while (rmsi2.getNextTuple(rid, returnedData) != RM_EOF) {
++        counter++;
++        if (counter > 1) {
++            std::cout << "***** A wrong entry was returned. RM Test Case Private 7 failed *****" << std::endl
++                      << std::endl;
++            rmsi2.close();
++            free(returnedData);
++            free(value);
++            return -1;
++        }
++
++        sender_location = *(float *) ((char *) returnedData + 1);
++        send_time = *(float *) ((char *) returnedData + 5);
++
++        if (!(sender_location == 2200.0 || send_time == 5000.0)) {
++            std::cout << "***** A wrong entry was returned. RM Test Case Private 7 failed *****" << std::endl
++                      << std::endl;
++            rmsi2.close();
++            free(returnedData);
++            free(value);
++            return -1;
++        }
++    }
++
++    rmsi2.close();
++    free(returnedData);
++    free(value);
++
++    std::cout << "***** RM Test Case Private 7 finished. The result will be examined. *****" << std::endl << std::endl;
++
++    return 0;
++}
++
++int main() {
++    return TEST_RM_PRIVATE_7("tbl_private_1");
++
++}
+diff --git a/rm/rmtest_p8.cc b/rm/rmtest_p8.cc
+new file mode 100644
+index 0000000..bc4302c
+--- /dev/null
++++ b/rm/rmtest_p8.cc
+@@ -0,0 +1,86 @@
++#include "rm_test_util.h"
++
++RC TEST_RM_PRIVATE_8(const std::string &tableName) {
++    // Functions tested
++    // 1. Delete Tuples
++    // 2. Scan Empty table
++    // 3. Delete Table 
++    std::cout << std::endl << "***** In RM Test Case Private 8 *****" << std::endl;
++
++    RC rc;
++    RID rid;
++    int numTuples = 100000;
++    void *returnedData = malloc(300);
++    std::vector<RID> rids;
++    std::vector<std::string> attributes;
++
++    attributes.emplace_back("tweetid");
++    attributes.emplace_back("userid");
++    attributes.emplace_back("sender_location");
++    attributes.emplace_back("send_time");
++    attributes.emplace_back("referred_topics");
++    attributes.emplace_back("message_text");
++
++    readRIDsFromDisk(rids, numTuples);
++
++    for (int i = 0; i < numTuples; i++) {
++        rc = rm.deleteTuple(tableName, rids[i]);
++        if (rc != success) {
++            free(returnedData);
++            std::cout << "***** RelationManager::deleteTuple() failed. RM Test Case Private 8 failed *****" << std::endl
++                      << std::endl;
++            return -1;
++        }
++
++        rc = rm.readTuple(tableName, rids[i], returnedData);
++        if (rc == success) {
++            free(returnedData);
++            std::cout
++                    << "***** RelationManager::readTuple() should fail at this point. RM Test Case Private 8 failed *****"
++                    << std::endl << std::endl;
++            return -1;
++        }
++
++        if (i % 10000 == 0) {
++            std::cout << (i + 1) << " / " << numTuples << " have been processed." << std::endl;
++        }
++    }
++    std::cout << "All records have been processed." << std::endl;
++
++    // Set up the iterator
++    RM_ScanIterator rmsi3;
++    rc = rm.scan(tableName, "", NO_OP, NULL, attributes, rmsi3);
++    if (rc != success) {
++        free(returnedData);
++        std::cout << "***** RelationManager::scan() failed. RM Test Case Private 8 failed. *****" << std::endl
++                  << std::endl;
++        return -1;
++    }
++
++    if (rmsi3.getNextTuple(rid, returnedData) != RM_EOF) {
++        std::cout
++                << "***** RM_ScanIterator::getNextTuple() should fail at this point. RM Test Case Private 8 failed. *****"
++                << std::endl << std::endl;
++        rmsi3.close();
++        free(returnedData);
++        return -1;
++    }
++    rmsi3.close();
++    free(returnedData);
++
++    // Delete a Table
++    rc = rm.deleteTable(tableName);
++    if (rc != success) {
++        std::cout << "***** RelationManager::deleteTable() failed. RM Test Case Private 8 failed. *****" << std::endl
++                  << std::endl;
++        return -1;
++    }
++
++    std::cout << "***** RM Test Case Private 8 finished. The result will be examined. *****" << std::endl << std::endl;
++    return 0;
++}
++
++int main() {
++    return TEST_RM_PRIVATE_8("tbl_private_1");
++
++}
+diff --git a/rm/rmtest_p9.cc b/rm/rmtest_p9.cc
+new file mode 100644
+index 0000000..c35112b
+--- /dev/null
++++ b/rm/rmtest_p9.cc
+@@ -0,0 +1,124 @@
++#include "rm_test_util.h"
++
++RC TEST_RM_PRIVATE_9(const std::string &tableName) {
++    // Functions tested
++    // An attempt to modify System Catalogs tables - should fail
++    std::cout << std::endl << "***** In RM Test Case Private 9 *****" << std::endl;
++
++    RID rid;
++    std::vector<Attribute> attrs;
++    void *returnedData = malloc(200);
++
++    RC rc = rm.getAttributes(tableName, attrs);
++    assert(rc == success && "RelationManager::getAttribute() should not fail.");
++
++    // print attribute name
++    std::cout << "Tables table: (";
++    for (size_t i = 0; i < attrs.size(); i++) {
++        if (i < attrs.size() - 1)
++            std::cout << attrs[i].name << ", ";
++        else
++            std::cout << attrs[i].name << ")" << std::endl << std::endl;
++    }
++
++    // Try to insert a row - should fail
++    int offset = 0;
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attrs.size());
++    auto *nullsIndicator = (unsigned char *) malloc(nullAttributesIndicatorActualSize);
++    memset(nullsIndicator, 0, nullAttributesIndicatorActualSize);
++
++    void *buffer = malloc(1000);
++
++    // Nulls-indicator
++    memcpy((char *) buffer + offset, nullsIndicator, nullAttributesIndicatorActualSize);
++    offset += nullAttributesIndicatorActualSize;
++
++    int intValue = 0;
++    int varcharLength = 7;
++    std::string varcharStr = "Testing";
++    float floatValue;
++
++    for (auto &attr : attrs) {
++        // Generating INT value
++        if (attr.type == TypeInt) {
++            intValue = 9999;
++            memcpy((char *) buffer + offset, &intValue, sizeof(int));
++            offset += sizeof(int);
++        } else if (attr.type == TypeReal) {
++            // Generating FLOAT value
++            floatValue = 9999.9;
++            memcpy((char *) buffer + offset, &floatValue, sizeof(float));
++            offset += sizeof(float);
++        } else if (attr.type == TypeVarChar) {
++            // Generating VarChar value
++            memcpy((char *) buffer + offset, &varcharLength, sizeof(int));
++            offset += sizeof(int);
++            memcpy((char *) buffer + offset, varcharStr.c_str(), varcharLength);
++            offset += varcharLength;
++        }
++    }
++
++    rc = rm.insertTuple(tableName, buffer, rid);
++    if (rc == success) {
++        std::cout
++                << "***** [FAIL] The system catalog should not be altered by a user's insertion call. RM Test Case Private 9 failed. *****"
++                << std::endl;
++        free(returnedData);
++        free(buffer);
++        return -1;
++    }
++
++    // Try to delete the system catalog
++    rc = rm.deleteTable(tableName);
++    if (rc == success) {
++        std::cout
++                << "***** [FAIL] The system catalog should not be deleted by a user call. RM Test Case Private 9 failed. *****"
++                << std::endl;
++        free(returnedData);
++        free(buffer);
++        return -1;
++    }
++
++    // Set up the iterator
++    RM_ScanIterator rmsi;
++    std::vector<std::string> projected_attrs;
++    if (attrs[1].name == "table-name") {
++        projected_attrs.push_back(attrs[1].name);
++    } else {
++        std::cout
++                << "***** [FAIL] The system catalog implementation is not correct. RM Test Case Private 9 failed. *****"
++                << std::endl;
++        free(returnedData);
++        free(buffer);
++        return -1;
++    }
++
++    rc = rm.scan(tableName, "", NO_OP, NULL, projected_attrs, rmsi);
++    assert(rc == success && "RelationManager::scan() should not fail.");
++
++    int counter = 0;
++    while (rmsi.getNextTuple(rid, returnedData) != RM_EOF) {
++        counter++;
++    }
++    rmsi.close();
++
++    // At least two system catalog tables exist (Tables and Columns)
++    if (counter < 3) {
++        std::cout
++                << "***** [FAIL] The system catalog implementation is not correct. RM Test Case Private 9 failed. *****"
++                << std::endl;
++        free(returnedData);
++        free(buffer);
++        return -1;
++    }
++
++    std::cout << "***** RM Test Case Private 9 finished. The result will be examined. *****" << std::endl << std::endl;
++    free(returnedData);
++    free(buffer);
++    return 0;
++}
++
++int main() {
++    return TEST_RM_PRIVATE_9("Tables");
++
++}
+diff --git a/rm/rmtest_pex1.cc b/rm/rmtest_pex1.cc
+new file mode 100644
+index 0000000..193a8ef
+--- /dev/null
++++ b/rm/rmtest_pex1.cc
+@@ -0,0 +1,163 @@
++#include "rm_test_util.h"
++
++RC RM_TEST_PRIVATE_EXTRA_1(const std::string &tableName) {
++    // Extra Test Case - Functions Tested:
++    // 1. Insert tuple
++    // 2. Read Attributes																																																				
++    // 3. Drop Attributes **
++    std::cout << std::endl << "***** In RM Private Extra Credit Test Case 1 *****" << std::endl;
++    rm.deleteTable(tableName);
++    createTweetTable(tableName);
++    RID rid;
++    RID rid2;
++    unsigned tupleSize = 0;
++    void *tuple = malloc(200);
++    void *returnedData = malloc(200);
++
++    int tweetid = 10;
++    int userid = 12;
++    float sender_location = 98.99;
++    float send_time = 10.11;
++    std::string referred_topics = "private1";
++    int referred_topics_length = 8;
++    std::string message_text = "WaitingForDrop";
++    int message_text_length = 14;
++
++    // Insert Tuple
++    std::vector<Attribute> attrs;
++    std::vector<Attribute> newAttrs;
++    RC rc = rm.getAttributes(tableName, attrs);
++    assert(rc == success && "RelationManager::getAttributes() should not fail.");
++
++    RM_ScanIterator rmsi;
++    std::string attr = "referred_topics";
++    std::string attr2 = "message_text";
++    std::vector<std::string> attributes;
++    attributes.push_back(attr2);
++
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attrs.size());
++    auto *nullsIndicator = (unsigned char *) malloc(nullAttributesIndicatorActualSize);
++    memset(nullsIndicator, 0, nullAttributesIndicatorActualSize);
++
++    prepareTweetTuple(attrs.size(), nullsIndicator, tweetid, userid, sender_location, send_time, referred_topics_length,
++                      referred_topics, message_text_length, message_text, tuple, &tupleSize);
++    rc = rm.insertTuple(tableName, tuple, rid);
++    assert(rc == success && "RelationManager::insertTuple() should not fail.");
++
++    // Read Attribute
++    rc = rm.readAttribute(tableName, rid, "referred_topics", returnedData);
++    assert(rc == success && "RelationManager::readAttribute() should not fail.");
++
++    // length of string (4) + actual string (8) = 12. 12 bytes should be the same
++    if (memcmp((char *) returnedData + nullAttributesIndicatorActualSize,
++               (char *) tuple + 16 + nullAttributesIndicatorActualSize, 12) != 0) {
++        std::cout << "***** RelationManager::readAttribute() failed. Private Extra Credit Test Case 1 Failed. *****"
++                  << std::endl;
++        std::cout << std::endl;
++        free(returnedData);
++        free(tuple);
++        return -1;
++    } else {
++        // read Tuple again
++        rc = rm.readTuple(tableName, rid, returnedData);
++        assert(rc == success && "RelationManager::readTuple() should not fail.");
++
++        // Print the tuple
++        std::cout << "Before dropping an attribute:" << std::endl;
++        rm.printTuple(attrs, returnedData);
++
++        // Drop the attribute
++        rc = rm.dropAttribute(tableName, attr);
++        assert(rc == success && "RelationManager::dropAttribute() should not fail.");
++
++        // Read Tuple and print the tuple
++        rc = rm.readTuple(tableName, rid, returnedData);
++        assert(rc == success && "RelationManager::readTuple() should not fail.");
++
++        // Remove "referred_topics" attribute from the Attribute vector
++        rm.getAttributes(tableName, newAttrs);
++        if (newAttrs.size() != attrs.size() - 1) {
++            std::cout << "The number of attributes after dropping an attribute is not correct." << std::endl;
++            std::cout << "***** [FAIL] Private Extra Credit Test Case 1 Failed. *****" << std::endl << std::endl;
++            free(returnedData);
++            free(tuple);
++            return -1;
++        }
++        std::cout << std::endl << "After dropping an attribute:" << std::endl;
++        rc = rm.printTuple(newAttrs, returnedData);
++        assert(rc == success && "RelationManager::printTuple() should not fail.");
++
++        // Insert one more tuple
++        tweetid = 77;
++        userid = 77;
++        sender_location = 77.77;
++        send_time = 77.78;
++        message_text = "PassOrFail2";
++        message_text_length = 11;
++
++        prepareTweetTupleAfterDrop(attrs.size(), nullsIndicator, tweetid, userid, sender_location, send_time,
++                                   message_text_length, message_text, tuple, &tupleSize);
++        rm.insertTuple(tableName, tuple, rid2);
++
++        // Read new tuple and print the tuple
++        rc = rm.readTuple(tableName, rid2, returnedData);
++        assert(rc == success && "RelationManager::readTuple() should not fail.");
++
++        std::cout << std::endl << "New tuple:" << std::endl;
++        rc = rm.printTuple(newAttrs, returnedData);
++        assert(rc == success && "RelationManager::printTuple() should not fail.");
++
++    }
++
++    // Scan() on message_text - should succeed
++    // We scan this variable since it is placed after the "referred_topics" attribute.
++    int counter = 0;
++    rc = rm.scan(tableName, "", NO_OP, NULL, attributes, rmsi);
++    if (rc != success) {
++        std::cout << "***** A scan initialization should not fail. *****" << std::endl;
++        std::cout << "***** [FAIL] Private Extra Credit Test Case 1 Failed. *****" << std::endl << std::endl;
++        free(tuple);
++        free(returnedData);
++        return -1;
++    } else {
++        while (rmsi.getNextTuple(rid, returnedData) != RM_EOF) {
++            counter++;
++            if (counter > 2) {
++                std::cout << "***** A wrong entry was returned. RM Private Extra Credit Test Case 1 failed *****"
++                          << std::endl << std::endl;
++                rmsi.close();
++                free(tuple);
++                free(returnedData);
++                return -1;
++            }
++
++            int strLength = *(int *) ((char *) returnedData + 1);
++            std::string strReturned(((char *) returnedData + 5), strLength);
++
++            std::cout << "Returned message_text: " << strReturned << std::endl;
++        }
++    }
++
++    rmsi.close();
++
++    if (counter != 2) {
++        std::cout << "***** A scan result is not correct. *****" << std::endl;
++        std::cout << "***** [FAIL] Private Extra Credit Test Case 1 Failed. *****" << std::endl << std::endl;
++        free(tuple);
++        free(returnedData);
++        return -1;
++    }
++
++    free(tuple);
++    free(returnedData);
++
++    rm.deleteTable(tableName);
++
++    std::cout << "***** Private Extra Credit Test Case 1 finished. The result will be examined. *****" << std::endl;
++    return success;
++}
++
++int main() {
++
++    return RM_TEST_PRIVATE_EXTRA_1("tbl_private_extra_1");
++}
+diff --git a/rm/rmtest_pex2.cc b/rm/rmtest_pex2.cc
+new file mode 100644
+index 0000000..a05d72b
+--- /dev/null
++++ b/rm/rmtest_pex2.cc
+@@ -0,0 +1,109 @@
++#include "rm_test_util.h"
++
++RC RM_TEST_PRIVATE_EXTRA_2(const std::string &tableName) {
++    // Functions Tested
++    // 1. Add Attribute **
++    // 2. Insert Tuple
++    std::cout << std::endl << "***** In RM Private Extra Credit Test Case 2 *****" << std::endl;
++    rm.deleteTable(tableName);
++    createTweetTable(tableName);
++
++    RID rid;
++    RID rid2;
++    unsigned tupleSize = 0;
++    unsigned tupleSize2 = 0;
++    void *tuple = malloc(200);
++    void *returnedData = malloc(200);
++    void *tuple2 = malloc(200);
++    void *returnedData2 = malloc(200);
++
++    int tweetid = 10;
++    int userid = 12;
++    float sender_location = 12.99;
++    float send_time = 44.22;
++    std::string referred_topics = "private2";
++    int referred_topics_length = 8;
++    std::string message_text = "WaitingForADD";
++    int message_text_length = 13;
++    std::string status_msg = "YouArePassingTest";
++    int status_msg_length = 17;
++
++    // GetAttributes
++    std::vector<Attribute> attrs;
++    RC rc;
++    rm.getAttributes(tableName, attrs);
++
++    int nullAttributesIndicatorActualSize = getActualByteForNullsIndicator(attrs.size());
++    auto *nullsIndicator = (unsigned char *) malloc(nullAttributesIndicatorActualSize);
++    memset(nullsIndicator, 0, nullAttributesIndicatorActualSize);
++
++    prepareTweetTuple(attrs.size(), nullsIndicator, tweetid, userid, sender_location, send_time, referred_topics_length,
++                      referred_topics, message_text_length, message_text, tuple, &tupleSize);
++    rc = rm.insertTuple(tableName, tuple, rid);
++    assert(rc == success && "RelationManager::insertTuple() should not fail.");
++
++    // Test Add Attribute
++    Attribute attr;
++    attr.name = "status_msg";
++    attr.type = TypeVarChar;
++    attr.length = 30;
++    rc = rm.addAttribute(tableName, attr);
++    assert(rc == success && "RelationManager::addAttribute() should not fail.");
++
++    // GetAttributes
++    std::vector<Attribute> newAttrs;
++    rc = rm.getAttributes(tableName, newAttrs);
++    assert(rc == success && "RelationManager::getAttributes() should not fail.");
++
++    // Test Insert Tuple
++    prepareTweetTupleAfterAdd(newAttrs.size(), nullsIndicator, tweetid, userid, sender_location, send_time,
++                              referred_topics_length, referred_topics, message_text_length, message_text,
++                              status_msg_length, status_msg, tuple2, &tupleSize2);
++    rc = rm.insertTuple(tableName, tuple2, rid2);
++    assert(rc == success && "RelationManager::insertTuple() should not fail.");
++
++    // Test Read Tuple - old tuple - status_msg field should be NULL.
++    rc = rm.readTuple(tableName, rid, returnedData);
++    assert(rc == success && "RelationManager::readTuple() should not fail.");
++
++    // Test Read Tuple - new tuple
++    rc = rm.readTuple(tableName, rid2, returnedData2);
++    assert(rc == success && "RelationManager::readTuple() should not fail.");
++
++    std::cout << "Inserted Data before addAttribute():" << std::endl;
++    rm.printTuple(attrs, tuple);
++
++    std::cout << "Returned Data before addAttribute():" << std::endl << std::endl;
++    rm.printTuple(newAttrs, returnedData);
++
++    std::cout << "Inserted Data after addAttribute():" << std::endl;
++    rm.printTuple(newAttrs, tuple2);
++
++    std::cout << "Returned Data after addAttribute():" << std::endl;
++    rm.printTuple(newAttrs, returnedData2);
++
++    rm.deleteTable(tableName);
++
++    if (memcmp(returnedData2, tuple2, tupleSize2) != 0) {
++        std::cout << "***** [FAIL] RM Private Extra Credit Test Case 2 Failed *****" << std::endl << std::endl;
++        free(tuple);
++        free(returnedData);
++        free(tuple2);
++        free(returnedData2);
++        return -1;
++    } else {
++        std::cout << "***** RM Private Extra Credit Test Case 2 Finished. The result will be examined. *****"
++                  << std::endl << std::endl;
++        free(tuple);
++        free(returnedData);
++        free(tuple2);
++        free(returnedData2);
++        return success;
++    }
++
++}
++
++int main() {
++
++    return RM_TEST_PRIVATE_EXTRA_2("tbl_private_extra_2");
++}
+-- 
+2.21.0 (Apple Git-120)
+

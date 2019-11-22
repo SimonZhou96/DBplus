@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/RBFM.dir/rbf/rbfm.cc.o"
-  "libRBFM.a"
   "libRBFM.pdb"
+  "libRBFM.a"
 )
 
 # Per-language clean rules from dependency scanning.

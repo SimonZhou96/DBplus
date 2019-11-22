@@ -1,0 +1,1 @@
+/usr/bin/c++   -fsanitize=address -O1 -g  -fno-omit-frame-pointer -g  -rdynamic CMakeFiles/ixtest_p3.dir/ix/ixtest_p3.cc.o  -o ixtest_p3 libIX.a libRM.a libRBFM.a libPFM.a 

@@ -290,7 +290,10 @@ RC RelationManager::createTable(const std::string &tableName, const std::vector<
         RM_ScanIterator rm_iter;
         std::vector<string> conditionAttribute;
         conditionAttribute.push_back("table-id");
-        const char* temp = tableName.c_str();
+        byte* temp = (byte*)malloc(sizeof(int) + tableName.length());
+        *(int*)temp = tableName.length();
+        memcpy(temp+sizeof(int),tableName.c_str(),tableName.length());
+
         if(scan(systemTable,"table-name",EQ_OP,temp,conditionAttribute,rm_iter) != 0) return -1;
         byte* temp_value = (byte*)malloc(1+sizeof(int));
         RID temp_rid;
@@ -301,6 +304,7 @@ RC RelationManager::createTable(const std::string &tableName, const std::vector<
         }
         free(temp_value);
         rm_iter.close();
+        free(temp);
 
         if(systemTableCounter < 0){
             updateTableNumber();
@@ -379,7 +383,11 @@ RC RelationManager::deleteTable(const std::string &tableName) {
     RM_ScanIterator rm_iter;
     std::vector<string> conditionAttribute;
     conditionAttribute.push_back("table-id");
-    const char* temp = tableName.c_str();
+    
+    byte* temp = (byte*)malloc(sizeof(int) + tableName.length());
+    *(int*)temp = tableName.length();
+    memcpy(temp+sizeof(int),tableName.c_str(),tableName.length());
+
     if(scan(systemTable,"table-name",EQ_OP,temp,conditionAttribute,rm_iter) != 0) return -1;
     byte* data = (byte*)malloc(sizeof(int)+1);
     RID rid;
@@ -396,6 +404,7 @@ RC RelationManager::deleteTable(const std::string &tableName) {
     }
     int t_id = *(int*)(data+1);
     rm_iter.close();
+    free(temp);
     conditionAttribute.clear();
     if(deleteTuple(systemTable,rid) != 0){
         free(data);
@@ -433,7 +442,11 @@ RC RelationManager::getAttributes(const std::string &tableName, std::vector<Attr
         RM_ScanIterator rm_iter;
         std::vector<string> conditionAttribute;
         conditionAttribute.emplace_back("table-id");
-        const char* temp = tableName.c_str();
+        
+        byte* temp = (byte*)malloc(sizeof(int) + tableName.length());
+        *(int*)temp = tableName.length();
+        memcpy(temp+sizeof(int),tableName.c_str(),tableName.length());
+
         if(scan(systemTable,"table-name",EQ_OP,temp,conditionAttribute,rm_iter) != 0){
             return -1;
         }
@@ -451,6 +464,7 @@ RC RelationManager::getAttributes(const std::string &tableName, std::vector<Attr
         }
         int t_id = *(int*)(data+1);
         rm_iter.close();
+        free(temp);
         conditionAttribute.clear();
         std::vector<Attribute> attributesDescriptor;
         prepareSystemColumnDescriptor(attributesDescriptor);
@@ -602,7 +616,9 @@ RC RelationManager::updateTableNumber(){
     RM_ScanIterator rm_iter;
     std::vector<string> conditionAttribute;
     conditionAttribute.push_back("table-id");
-    const char* temp = systemTable.c_str();
+    
+    void* temp = nullptr;
+
     if(scan(systemTable,"table-name",NO_OP,temp,conditionAttribute,rm_iter) != 0 ) return -1;
     byte* data = (byte*)malloc(1+sizeof(int));
     RID rid;

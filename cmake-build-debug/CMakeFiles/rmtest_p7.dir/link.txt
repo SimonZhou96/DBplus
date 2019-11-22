@@ -1,0 +1,1 @@
+/usr/bin/c++   -fsanitize=address -O1 -g  -fno-omit-frame-pointer -g  -rdynamic CMakeFiles/rmtest_p7.dir/rm/rmtest_p7.cc.o  -o rmtest_p7 libRM.a libRBFM.a libPFM.a 

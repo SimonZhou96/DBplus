@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/PFM.dir/rbf/pfm.cc.o"
-  "libPFM.a"
   "libPFM.pdb"
+  "libPFM.a"
 )
 
 # Per-language clean rules from dependency scanning.

@@ -131,6 +131,8 @@ public:
     // Read a record identified by the given rid.
     RC readRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const RID &rid, void *data);
 
+    RC readEncodedRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const RID &rid, void *data);
+
     // Print the record that is passed to this utility method.
     // This method will be mainly used for debugging/testing.
     // The format is as follows:
@@ -161,9 +163,6 @@ public:
     RC updateOutRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const void *data,
             void * pageData, const RID &rid);
 
-    RC decodeRecord(void * src, const std::vector<Attribute> &recordDescriptor);
-    RC encodeRecord(void * src, const std::vector<Attribute> &recordDescriptor);
-
     // Read an attribute given its name and the rid.
     RC readAttribute(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor, const RID &rid,
                      const std::string &attributeName, void *data);
@@ -179,13 +178,17 @@ public:
             const std::vector<std::string> &attributeNames, // a list of projected attributes
             RBFM_ScanIterator &rbfm_ScanIterator);
 
-    RC getPageInformation(void* data, FileHandle &fileHandle, unsigned PID, short &numberRecord, short &freeSpace);
+    RC getPageInformation(const void* data, unsigned PID, short &numberRecord, short &freeSpace);
     RC getSlotInfo(void* data,unsigned PID, short &length, short &offset, short numberRecord);
     RC initialPage(FileHandle &fileHandle);
     short recordLength(const std::vector<Attribute> &recordDescriptor, const void* data);
     short findEmptySlot(const void* data, const short numberRecord, short &offset);
     short getLastRecordsInfo(const void* page);
     RC shiftRecord(void *pageData, const RID &rid, short numberOfRecord, short offset);
+
+    RC encodeData(const void* data, void* returnedData, const std::vector<Attribute> &recordDescriptor);
+    RC decodeData(const void* data, void* returnedData, const std::vector<Attribute> &recordDescriptor);
+    RC getRecordInformation(void *pageData, short recordIndex, short &recordLength, short &recordOffset);
 
 
 public:

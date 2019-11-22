@@ -4,9 +4,9 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/mengzhou/CLionProjects/cs222-fall19-team-39/rm/rm.cc" "/Users/mengzhou/CLionProjects/cs222-fall19-team-39/cmake-build-debug/CMakeFiles/RM.dir/rm/rm.cc.o"
+  "/mnt/d/software/repositories/rm/rm.cc" "/mnt/d/software/repositories/cmake-build-debug/CMakeFiles/RM.dir/rm/rm.cc.o"
   )
-set(CMAKE_CXX_COMPILER_ID "Clang")
+set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX

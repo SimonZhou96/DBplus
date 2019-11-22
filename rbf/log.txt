@@ -1,0 +1,252 @@
+==6561== Memcheck, a memory error detector
+==6561== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==6561== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+==6561== Command: ./rbftest_update
+==6561== 
+==6561== error calling PR_SET_PTRACER, vgdb might block
+
+***** In RBF Test Case Update *****
+==6561== Invalid read of size 1
+==6561==    at 0x4C36796: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x11246C: RecordBasedFileManager::encodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1149)
+==6561==    by 0x110263: RecordBasedFileManager::updateSmallInRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, void const*, void*, RID const&, int) (rbfm.cc:491)
+==6561==    by 0x110569: RecordBasedFileManager::updateRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, void const*, RID const&) (rbfm.cc:567)
+==6561==    by 0x10CCC8: updateRecord(RecordBasedFileManager&, RID&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:45)
+==6561==    by 0x10D0B9: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:123)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561==  Address 0x5b975d8 is 0 bytes after a block of size 8 alloc'd
+==6561==    at 0x4C2FB0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x11050A: RecordBasedFileManager::updateRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, void const*, RID const&) (rbfm.cc:558)
+==6561==    by 0x10CCC8: updateRecord(RecordBasedFileManager&, RID&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:45)
+==6561==    by 0x10D0B9: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:123)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Invalid read of size 1
+==6561==    at 0x4C36788: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x11246C: RecordBasedFileManager::encodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1149)
+==6561==    by 0x110263: RecordBasedFileManager::updateSmallInRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, void const*, void*, RID const&, int) (rbfm.cc:491)
+==6561==    by 0x110569: RecordBasedFileManager::updateRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, void const*, RID const&) (rbfm.cc:567)
+==6561==    by 0x10CCC8: updateRecord(RecordBasedFileManager&, RID&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:45)
+==6561==    by 0x10D0B9: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:123)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561==  Address 0x5b975da is 2 bytes after a block of size 8 alloc'd
+==6561==    at 0x4C2FB0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x11050A: RecordBasedFileManager::updateRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, void const*, RID const&) (rbfm.cc:558)
+==6561==    by 0x10CCC8: updateRecord(RecordBasedFileManager&, RID&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:45)
+==6561==    by 0x10D0B9: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:123)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x10F253: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:138)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x10F27B: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:144)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x4C366E6: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x10F351: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:163)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x1127C6: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1202)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x11270B: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1191)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x112650: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1180)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x4C366E6: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x4C36796: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Invalid write of size 1
+==6561==    at 0x4C3678B: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561==  Address 0x5b7ec60 is 0 bytes after a block of size 2,000 alloc'd
+==6561==    at 0x4C2FB0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x10D3DD: __static_initialization_and_destruction_0(int, int) (rbftest_update.cc:13)
+==6561==    by 0x10D449: _GLOBAL__sub_I__Z10FileExistsRNSt7__cxx1112basic_stringIcSt11char_traitsIcESaIcEEE (rbftest_update.cc:158)
+==6561==    by 0x11530C: __libc_csu_init (in /home/xander/mycs222-projects/cs222-fall19-team-39/rbf/rbftest_update)
+==6561==    by 0x579CB27: (below main) (libc-start.c:266)
+==6561== 
+==6561== Invalid read of size 1
+==6561==    at 0x4C36796: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561==  Address 0x5b9b730 is 0 bytes after a block of size 4,096 alloc'd
+==6561==    at 0x4C2FB0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x10F327: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:162)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Invalid read of size 1
+==6561==    at 0x4C36788: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561==  Address 0x5b9b733 is 3 bytes after a block of size 4,096 alloc'd
+==6561==    at 0x4C2FB0F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x10F327: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:162)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== 
+==6561== Process terminating with default action of signal 11 (SIGSEGV)
+==6561==  Access not within mapped region at address 0x5F6C000
+==6561==    at 0x4C36796: memmove (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561==  If you believe this happened as a result of a stack
+==6561==  overflow in your program's main thread (unlikely but
+==6561==  possible), you can try to increase the size of the
+==6561==  main thread stack using the --main-stacksize= flag.
+==6561==  The main thread stack size used in this run was 8388608.
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x580A2E2: _IO_flush_all_lockp (genops.c:764)
+==6561==    by 0x580A404: _IO_cleanup (genops.c:921)
+==6561==    by 0x5915787: __libc_freeres (in /lib/x86_64-linux-gnu/libc-2.27.so)
+==6561==    by 0x4A2A671: _vgnU_freeres (in /usr/lib/valgrind/vgpreload_core-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x580A2F0: _IO_flush_all_lockp (genops.c:764)
+==6561==    by 0x580A404: _IO_cleanup (genops.c:921)
+==6561==    by 0x5915787: __libc_freeres (in /lib/x86_64-linux-gnu/libc-2.27.so)
+==6561==    by 0x4A2A671: _vgnU_freeres (in /usr/lib/valgrind/vgpreload_core-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x580A272: _IO_flush_all_lockp (genops.c:758)
+==6561==    by 0x580A404: _IO_cleanup (genops.c:921)
+==6561==    by 0x5915787: __libc_freeres (in /lib/x86_64-linux-gnu/libc-2.27.so)
+==6561==    by 0x4A2A671: _vgnU_freeres (in /usr/lib/valgrind/vgpreload_core-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x580A4EE: _IO_unbuffer_all (genops.c:855)
+==6561==    by 0x580A4EE: _IO_cleanup (genops.c:930)
+==6561==    by 0x5915787: __libc_freeres (in /lib/x86_64-linux-gnu/libc-2.27.so)
+==6561==    by 0x4A2A671: _vgnU_freeres (in /usr/lib/valgrind/vgpreload_core-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x580A4F8: _IO_unbuffer_all (genops.c:857)
+==6561==    by 0x580A4F8: _IO_cleanup (genops.c:930)
+==6561==    by 0x5915787: __libc_freeres (in /lib/x86_64-linux-gnu/libc-2.27.so)
+==6561==    by 0x4A2A671: _vgnU_freeres (in /usr/lib/valgrind/vgpreload_core-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== Conditional jump or move depends on uninitialised value(s)
+==6561==    at 0x580A4E1: _IO_unbuffer_all (genops.c:853)
+==6561==    by 0x580A4E1: _IO_cleanup (genops.c:930)
+==6561==    by 0x5915787: __libc_freeres (in /lib/x86_64-linux-gnu/libc-2.27.so)
+==6561==    by 0x4A2A671: _vgnU_freeres (in /usr/lib/valgrind/vgpreload_core-amd64-linux.so)
+==6561==    by 0x112900: RecordBasedFileManager::decodeData(void const*, void*, std::vector<Attribute, std::allocator<Attribute> > const&) (rbfm.cc:1223)
+==6561==    by 0x10F369: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:164)
+==6561==    by 0x10F2F8: RecordBasedFileManager::readRecord(FileHandle&, std::vector<Attribute, std::allocator<Attribute> > const&, RID const&, void*) (rbfm.cc:155)
+==6561==    by 0x10CA98: readRecord(RecordBasedFileManager&, RID const&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&) (rbftest_update.cc:23)
+==6561==    by 0x10D0D6: RBFTest_Update(RecordBasedFileManager&) (rbftest_update.cc:126)
+==6561==    by 0x10D372: main (rbftest_update.cc:157)
+==6561== 
+==6561== 
+==6561== HEAP SUMMARY:
+==6561==     in use at exit: 20,075 bytes in 13 blocks
+==6561==   total heap usage: 61 allocs, 48 frees, 190,303 bytes allocated
+==6561== 
+==6561== LEAK SUMMARY:
+==6561==    definitely lost: 512 bytes in 1 blocks
+==6561==    indirectly lost: 0 bytes in 0 blocks
+==6561==      possibly lost: 0 bytes in 0 blocks
+==6561==    still reachable: 19,563 bytes in 12 blocks
+==6561==         suppressed: 0 bytes in 0 blocks
+==6561== Rerun with --leak-check=full to see details of leaked memory
+==6561== 
+==6561== For counts of detected and suppressed errors, rerun with: -v
+==6561== Use --track-origins=yes to see where uninitialised values come from
+==6561== ERROR SUMMARY: 8986943 errors from 19 contexts (suppressed: 0 from 0)

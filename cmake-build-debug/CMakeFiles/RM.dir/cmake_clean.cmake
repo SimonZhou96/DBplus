@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/RM.dir/rm/rm.cc.o"
-  "libRM.a"
   "libRM.pdb"
+  "libRM.a"
 )
 
 # Per-language clean rules from dependency scanning.

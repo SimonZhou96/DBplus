@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/rmtest_delete_tables.dir/rm/rmtest_delete_tables.cc.o"
-  "rmtest_delete_tables"
   "rmtest_delete_tables.pdb"
+  "rmtest_delete_tables"
 )
 
 # Per-language clean rules from dependency scanning.

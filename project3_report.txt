@@ -1,0 +1,40 @@
+1. Basic information
+Team number (e.g., 01) : 
+#1 Student ID : 76521043
+#1 Student Name : MENG ZHOU
+#2 Student ID : 23122210
+#2 Student Name : XIANGDE ZENG
+OS (bit) : OSX, Ubuntu
+gcc version : 4.2.1, 4.8.5
+
+
+2. Meta-data page in an index file
+- Show your meta-data page of an index design if you have any.
+In the meta data page, we stored the write counter, append counter and read counter. And the variable to indicate the number of pages.
+3. Index Entry Format
+- Show your index entry design (structure). 
+We treat all index entry as the Key + Right pointer, and we left the left most pointer to treat independently. It is easy for us to implement it with binary search.
+
+4. Page Format
+- Show your internal-page (non-leaf node) design.
+The index page design: We put three variables: Page type, Free space, Number of keys at the end of the pages.
+
+- Show your leaf-page (leaf node) design.
+The index page design: We put three variables: Page type, Free space, Number of keys at the end of the pages.
+
+5. Implementation Detail
+- Have you added your own source file (.cc or .h)?
+No
+- Have you implemented non-lazy deletion? Choose Yes or No: 
+Yes, we implemented redistribution, when we delete the keys, all of the keys that is at the right of the key moves back.
+
+- Have you implemented duplicated key handling that can span multiple pages? Choose Yes or No: 
+  If yes, please explain briefly how you have implemented this feature.
+Yes, in index node, every key in the index entry consisted of (KEY + RID), so when we do search operation. Not only we compare with key, but also with rid.
+
+- Other implementation details:
+
+
+6. Other (optional)
+- Freely use this section to tell us about things that are related to the project 3, but not related to the other sections (optional)
+It is very hard to implement after midterm without bouncing my head back. Nice experience to fight 48 hours consistently with my partner.

@@ -36,107 +36,7 @@ RC RecordBasedFileManager::closeFile(FileHandle &fileHandle) {
     if (PagedFileManager::instance().closeFile(fileHandle) == 0) return 0;
     return -1;
 }
-RC RecordBasedFileManager::decodeRecord(void * src, const std::vector<Attribute> &recordDescriptor) {
 
-    auto *dstPtr = (char *) src;
-    auto* nullBitIndicator = (unsigned char*) src;
-    int pos = 0;
-
-    short recordSize = recordLength(recordDescriptor,src);
-    // we first copy the whole record and then we do the encode.
-    for (auto attr : recordDescriptor) {
-        unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
-        char nullBit = 1;
-        switch (attr.type) {
-            case TypeInt:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    nullBit = 0;
-                    memcpy(dstPtr, &nullBit, sizeof(char));
-                } else {
-                    nullBit = 1;
-                    memcpy(src, &nullBit, sizeof(char));
-                }
-                break;
-            case TypeReal:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    nullBit = 0;
-                    memcpy(dstPtr, &nullBit, sizeof(char));
-                } else {
-                    nullBit = 1;
-                    memcpy(dstPtr, &nullBit, sizeof(char));
-                }
-                break;
-            case TypeVarChar:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    nullBit = 0;
-                    memcpy(dstPtr, &nullBit, sizeof(char));
-                } else {
-                    // if the string is null, we set the offset to -1. But there is a unsigned record the length of string, so we should move the offset as well
-                    nullBit = 1;
-                    memcpy(dstPtr, &nullBit, sizeof(char));
-                }
-                break;
-        }
-        dstPtr++;
-        pos++;
-    }
-}
-/**
- * For every record, we encode it as from NULL indicator + real Data to Length + realData
- * */
-RC RecordBasedFileManager::encodeRecord(void * src, const std::vector<Attribute> &recordDescriptor) {
-    // first we get the number of null indicators in a record.
-    unsigned nullFieldsIndicatorActualSize = ceil((double) recordDescriptor.size() / CHAR_BIT);
-
-    // encode process begin
-    auto *dstPtr = (char *) src;
-    auto* nullBitIndicator = (unsigned char*) src;
-    char *temp = (char *)src;
-    int pos = 0;
-
-    unsigned offset = 0;
-    short recordSize = recordLength(recordDescriptor,src);
-    // we first copy the whole record and then we do the encode.
-    for (auto attr : recordDescriptor) {
-        unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
-        switch (attr.type) {
-            case TypeInt:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    memcpy(dstPtr, &offset, sizeof(unsigned char));
-                    offset += sizeof(unsigned);
-                } else {
-                    char nullOffset = -1;
-                    memcpy(dstPtr, &nullOffset, sizeof(char));
-                }
-                break;
-            case TypeReal:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    memcpy(dstPtr, &offset, sizeof(unsigned char));
-                    offset += sizeof(float);
-                } else {
-                    char nullOffset = -1;
-                    memcpy(dstPtr, &nullOffset, sizeof(char));
-                }
-                break;
-            case TypeVarChar:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    auto *curPtr = (char *)src;
-                    int nameLength = *(int *)((char *)curPtr + offset);
-                    memcpy(dstPtr, &offset, sizeof(unsigned));
-                    offset += sizeof(unsigned);
-                    offset += nameLength;
-                } else {
-                    // if the string is null, we set the offset to -1. But there is a unsigned record the length of string, so we should move the offset as well
-                    memcpy(dstPtr, &offset, sizeof(unsigned char));
-                    offset += sizeof(unsigned);
-                }
-                break;
-        }
-        dstPtr++;
-        pos++;
-    }
-    return 0;
-}
 RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor,
                                         const void *data, RID &rid) {
     if(fileHandle.numberPageAmount < 0) return -1;
@@ -148,27 +48,29 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const std::vecto
     short slotNum;
     short freeSpace;
     void* buffer = malloc(PAGE_SIZE);
+    fileHandle.readPage(PID,buffer);
     // get the information the number of the slots, and the free space
-    getPageInformation(buffer,fileHandle,PID,slotNum,freeSpace);
+    getPageInformation(buffer,PID,slotNum,freeSpace);
     // get the length of the record
     short len = recordLength(recordDescriptor, data) + 2 * sizeof(short);
-
-    encodeRecord(buffer,recordDescriptor);
     // printf("length: %d\n", len);
     if(len > freeSpace){ //over the size of the page, seek to the next one or generate the new one
         if(freeSpace == PAGE_SIZE-2*sizeof(short)) return -1;
         PID = 0;
-        getPageInformation(buffer,fileHandle,PID,slotNum,freeSpace);
+        fileHandle.readPage(PID,buffer);
+        getPageInformation(buffer,PID,slotNum,freeSpace);
         while(len > freeSpace) {
             // when we go through all pages and still cannot find the appropriate one, create a new one
             PID++;
             if(PID >= fileHandle.numberPageAmount-1){
                 initialPage(fileHandle);
                 PID = fileHandle.numberPageAmount-1;
-                getPageInformation(buffer,fileHandle,PID,slotNum,freeSpace);
+                fileHandle.readPage(PID,buffer);
+                getPageInformation(buffer,PID,slotNum,freeSpace);
                 break;
             }
-            getPageInformation(buffer,fileHandle,PID,slotNum,freeSpace);
+            fileHandle.readPage(PID,buffer);
+            getPageInformation(buffer,PID,slotNum,freeSpace);
 
         }
     }
@@ -200,11 +102,15 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const std::vecto
     rid.slotNum = (unsigned)sid;
 
     cur = (byte*)buffer + offset;
-    //cout << "*************** Len : " << recordLength << "  *********************** offset "  << offset<< endl;
-    
-    memcpy(cur,data,recordLength);
+
+    void* encodedData = malloc(PAGE_SIZE);
+    encodeData(data,encodedData,recordDescriptor);
+
+    memcpy(cur,encodedData,recordLength);
+    free(encodedData);
     
     fileHandle.writePage(PID,buffer);
+    //cout << "*************** After: free space : " << freeSpace << "  *********************** " << endl;
     /*short last_offset = getLastRecordsInfo(buffer);
     slotNum = *(short*)((char*)buffer+PAGE_SIZE-2*sizeof(short));
     short f_value = PAGE_SIZE - sizeof(short)*2- sizeof(short)*2*slotNum - last_offset;
@@ -221,6 +127,56 @@ RC RecordBasedFileManager::insertRecord(FileHandle &fileHandle, const std::vecto
 }
 
 RC RecordBasedFileManager::readRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor,
+                                      const RID &rid, void *data) {
+    // we find the page id
+    unsigned PID = rid.pageNum;
+    unsigned slotNum = rid.slotNum;
+
+    void* buffer = malloc(PAGE_SIZE);
+    fileHandle.readPage(PID,buffer);
+    short curRecordLength;
+    short curRecordOffset;
+
+    // in here, we should decide if that rid is being delete or not
+    getSlotInfo(buffer,PID,curRecordLength,curRecordOffset, (short)slotNum);
+    
+    if (curRecordLength == -1) {
+        free(buffer);
+        return -1;
+    }
+    auto *ptr = (char *)buffer;
+    // in here, we should decide if that rid is being indirect or not
+    if (curRecordLength == PAGE_SIZE + 1) {
+        short offset = *(short *)(ptr + PAGE_SIZE - 2 * sizeof(short) - 2 * slotNum * sizeof(short) + sizeof(short));
+        unsigned newPageNum = *(unsigned *)(ptr + offset);
+        unsigned newSlotNum = *(unsigned *)(ptr + offset + sizeof(unsigned));
+//        fileHandle.readPage(newPageNum,buffer);
+//        // in here, we should decide if that rid is being delete or not
+//        getSlotInfo(buffer, newPageNum,curRecordLength,curRecordOffset,newSlotNum);
+        RID currentRID;
+        currentRID.pageNum = newPageNum;
+        currentRID.slotNum = newSlotNum;
+
+
+        if (readRecord(fileHandle,recordDescriptor,currentRID,data) == -1){
+            free(buffer);
+            return -1;
+        }
+    }
+    else{
+
+        auto *cur = (byte*)buffer;
+        void* rawData = malloc(PAGE_SIZE);
+        memcpy(rawData, cur+curRecordOffset, curRecordLength);
+        decodeData(rawData,data,recordDescriptor);
+        free(rawData);
+    }
+    free(buffer);
+    return 0;
+}
+
+
+RC RecordBasedFileManager::readEncodedRecord(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor,
                                       const RID &rid, void *data) {
     // we find the page id
     unsigned PID = rid.pageNum;
@@ -420,11 +376,15 @@ RC RecordBasedFileManager::updateEqualRecord(FileHandle &fileHandle, const std::
     auto *cur = (char *)pageData;
     short curRecordSize = *(short *)(cur + PAGE_SIZE - 2 * sizeof(short) - 2 * rid.slotNum * sizeof(short));
     short curRecordOffset = *(short *)(cur + PAGE_SIZE - 2 * sizeof(short) - 2 * rid.slotNum * sizeof(short) + sizeof(short));
-    memcpy(cur + curRecordOffset, data, curRecordSize);
+    
+    void* encodedData = malloc(PAGE_SIZE);
+    encodeData(data,encodedData,recordDescriptor);
+    memcpy(cur + curRecordOffset, encodedData, curRecordSize);
+    free(encodedData);
     return 0;
 }
 
-RC getRecordInformation(void *pageData, short recordIndex, short &recordLength, short &recordOffset) {
+RC RecordBasedFileManager::getRecordInformation(void *pageData, short recordIndex, short &recordLength, short &recordOffset) {
     auto *cur = (char *)pageData;
     recordLength = *(short *)(cur + PAGE_SIZE - 2 * sizeof(short) - 2 * recordIndex * sizeof(short));
     recordOffset = *(short *)(cur + PAGE_SIZE - 2 * sizeof(short) - 2 * recordIndex * sizeof(short) + sizeof(short));
@@ -436,8 +396,7 @@ RC RecordBasedFileManager::shiftRecord(void *pageData, const RID &rid, short num
     cur += PAGE_SIZE - 2 * sizeof(short) - 2 * rid.slotNum * sizeof(short);
 
     short startPos = *(short*)(cur+sizeof(short));
-    //cout << "Shifting start offset: " << startPos << endl;
-    //cout << "Shifting increment: " << offset << endl;
+
     cur = (char*)((char*)pageData+PAGE_SIZE-2*sizeof(short));
     for (short i = 1;i<=numberOfRecord;i++) {
         cur -= 2 * sizeof(short);
@@ -446,8 +405,7 @@ RC RecordBasedFileManager::shiftRecord(void *pageData, const RID &rid, short num
         short curOffset = *(short *)(cur + sizeof(short));
         if(curOffset < startPos) continue;
         short newOffset = curOffset - offset;
-        //cout << "Shifting old offset: " << curOffset << endl;
-        //cout << "Shifting new offset: " << newOffset << endl;
+
         memcpy(cur + sizeof(short), &newOffset, sizeof(short));
     }
     return 0;
@@ -463,7 +421,7 @@ RC RecordBasedFileManager::updateLargeInRecord(FileHandle &fileHandle, const std
 
     short numberOfRecord;
     short freeSpace;
-    getPageInformation(pageData, fileHandle, rid.pageNum, numberOfRecord, freeSpace);
+    getPageInformation(pageData, rid.pageNum, numberOfRecord, freeSpace);
     
 
     // get the boundary of the loop
@@ -479,10 +437,16 @@ RC RecordBasedFileManager::updateLargeInRecord(FileHandle &fileHandle, const std
     // update the length of the metadata of the current updated record
     memcpy(cur + PAGE_SIZE - 2 * sizeof(short) - 2 * rid.slotNum * sizeof(short), &length, sizeof(short));
 //    memcpy(cur + PAGE_SIZE - 2 * sizeof(short) - 2 * rid.slotNum * sizeof(short) + sizeof(short), &curRecordOffset, sizeof(short));
-    // copy the new larger record
-    memcpy(cur + curRecordOffset, data, length);
+    
     // after shift the metadata pages, we need to decrement the freespace  by shiftOffset, and write it back into memory, the number of records doesn't change
     memcpy(cur + PAGE_SIZE - sizeof(short), &freeSpace, sizeof(short));
+
+    // copy the new larger record
+    void* encodedData = malloc(PAGE_SIZE);
+    encodeData(data,encodedData,recordDescriptor);
+    memcpy(cur + curRecordOffset, encodedData, length);
+
+    free(encodedData);
 
     shiftRecord(pageData, rid, numberOfRecord, -shiftOffset);
     return 0;
@@ -503,7 +467,7 @@ RC RecordBasedFileManager::updateSmallInRecord(FileHandle &fileHandle, const std
     short numberOfRecord;
     short freeSpace;
 
-    getPageInformation(pageData, fileHandle, pageNum, numberOfRecord, freeSpace);
+    getPageInformation(pageData, pageNum, numberOfRecord, freeSpace);
     getRecordInformation(pageData, slotNum, curRecordSize, curRecordOffset);
 
     // if it is indirect address, we need to allocate 2*sizeof(unsigned)
@@ -527,8 +491,19 @@ RC RecordBasedFileManager::updateSmallInRecord(FileHandle &fileHandle, const std
      * copy the indirect address pointer to the memory
      * */
     memcpy(cur+PAGE_SIZE-2*sizeof(short)-2*rid.slotNum*sizeof(short),&newRecordSize,sizeof(short));
-    memcpy(cur + curRecordOffset, data, newRecordSize);
     memcpy(cur + PAGE_SIZE - sizeof(short), &freeSpace, sizeof(short));
+
+    if(ifIndirect == 1){
+        memcpy(cur + curRecordOffset, data, newRecordSize);
+
+    }
+    else{
+        void* encodedData = malloc(PAGE_SIZE);
+        encodeData(data,encodedData,recordDescriptor);
+        memcpy(cur + curRecordOffset, encodedData, newRecordSize);
+        free(encodedData);
+    }
+    
 
     // shift the record meta data
     shiftRecord(pageData, rid, numberOfRecord, offsetNeedsToShift);
@@ -544,9 +519,11 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const std::vecto
     short curFreeSpace;
     short numberOfRecords;
 
+
+
     void * pageData = malloc(PAGE_SIZE);
     fileHandle.readPage(pageNum, pageData);
-    getPageInformation(pageData, fileHandle, pageNum, numberOfRecords, curFreeSpace);
+    getPageInformation(pageData,  pageNum, numberOfRecords, curFreeSpace);
 
     short curRecordSize;
     short curRecordOffset;
@@ -592,7 +569,6 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const std::vecto
              //cout << " in case 4, current page id " << rid.pageNum << " current r id " << rid.slotNum;
              RID newRID;
              insertRecord(fileHandle, recordDescriptor, data, newRID);
-             //cout << " new page id " << newRID.pageNum << " new r id " << newRID.slotNum;
              void *RIDSpace = malloc(2 * sizeof(unsigned));
              auto *ptr = (char *) RIDSpace;
 
@@ -616,7 +592,8 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const std::vecto
          }
          fileHandle.writePage(rid.pageNum, pageData);
      }
-     //cout << endl;
+     
+
     free(pageData);
     return 0;
 }
@@ -624,30 +601,29 @@ RC RecordBasedFileManager::updateRecord(FileHandle &fileHandle, const std::vecto
 RC RecordBasedFileManager::readAttribute(FileHandle &fileHandle, const std::vector<Attribute> &recordDescriptor,
                                          const RID &rid, const std::string &attributeName, void *data) {
     void* buffer = malloc(PAGE_SIZE);
-    readRecord(fileHandle, recordDescriptor,rid,buffer);
+    readEncodedRecord(fileHandle, recordDescriptor,rid,buffer);
 
-    decodeRecord(buffer, recordDescriptor);
     short len = 0;
+
+    short attrs_size = *(short*) buffer;
+    short* attrs_offset = (short*)malloc(sizeof(short) * attrs_size);
 
     int nullBitSize = (int)ceil((double)recordDescriptor.size() / CHAR_BIT);
 
     len += (short)nullBitSize;
     auto * cur = (char *)buffer;
+    memcpy(attrs_offset,cur + sizeof(short),sizeof(short) * attrs_size);
 
-    cur += nullBitSize;
 
     unsigned char* nullBitIndicator;
     nullBitIndicator = (unsigned char *) buffer;
-    memcpy(data,nullBitIndicator,nullBitSize);
+    memset(nullBitIndicator,0,nullBitSize);
     auto* dataCur = ((char *)data + nullBitSize);
 
-
-    int pos = 0;
-
     for(unsigned i = 0;i<recordDescriptor.size();i++){
-        unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
         if(recordDescriptor[i].name.compare(attributeName) == 0){
-            if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))){
+            if(attrs_offset[i] != -1){
+                cur += attrs_offset[i];
                 switch (recordDescriptor[i].type){
                     case TypeReal:
                         memcpy(dataCur,cur,sizeof(float));
@@ -662,38 +638,22 @@ RC RecordBasedFileManager::readAttribute(FileHandle &fileHandle, const std::vect
                         break;
                 }
                 free(buffer);
+                free(attrs_offset);
                 return 0;
             }
             else{
+                memset((byte*)data,1,nullBitSize);
                 free(buffer);
-                return 1; //the value is null, return
+                free(attrs_offset);
+                return 0;
             }
-        }
-        switch (recordDescriptor[i].type){
-            case TypeReal:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    len += sizeof(float);
-                    cur += sizeof(float);
-                }
-                break;
-            case TypeInt:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    len += sizeof(int);
-                    cur += sizeof(int);
-                }
-                break;
-            case TypeVarChar:
-                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
-                    int nameLength = *(int *) cur;
-                    len += sizeof(int);
-                    cur += sizeof(int);
-                    cur += nameLength;
-                    len += nameLength;
-                }
-                break;
+
         }
     }
+
+    
     free(buffer);
+    free(attrs_offset);
     return -1;
     
 
@@ -743,7 +703,8 @@ RC RBFM_ScanIterator::getNextRecord(RID &rid, void *data){
         //cout << "pageNum:" << current_rid.pageNum << "total Page:" << totalPage << endl;
         if(current_rid.pageNum >= totalPage) return RBFM_EOF; //no more record, end.
         short freeSpace = 0;
-        rbfm->getPageInformation(buffer,fileHandle,current_rid.pageNum,totalRecord,freeSpace);
+        fileHandle.readPage(current_rid.pageNum,buffer);
+        rbfm->getPageInformation(buffer,current_rid.pageNum,totalRecord,freeSpace);
         if(totalRecord == 0){
             continue;
         }
@@ -759,25 +720,28 @@ RC RBFM_ScanIterator::getNextRecord(RID &rid, void *data){
             if((short)current_rid.slotNum > totalRecord) return getNextRecord(rid,data);
             continue;
         }
-        void* returnAttribute = malloc(PAGE_SIZE);
+        
         
         if(compOp == NO_OP){
             formatData(data);
             rid.pageNum = current_rid.pageNum;
             rid.slotNum = current_rid.slotNum;
-            free(returnAttribute);
             return 0;
 
         }
-        RC res = rbfm->readAttribute(fileHandle,recordDescriptor,current_rid,conditionAttribute,returnAttribute);
-        if(res == 1){
+        void* returnAttribute = malloc(PAGE_SIZE);
+        memset(returnAttribute,0,PAGE_SIZE);
+        rbfm->readAttribute(fileHandle,recordDescriptor,current_rid,conditionAttribute,returnAttribute);
+
+        auto* r_value = (byte*)returnAttribute;
+        int nullBitSize = (int)ceil((double)attributeNames.size() / CHAR_BIT);
+
+        if(*(unsigned char*) r_value != 0){
             free(returnAttribute);
             current_rid.slotNum++;
             if((short)current_rid.slotNum > totalRecord) return getNextRecord(rid,data);
             continue;
         }
-        auto* r_value = (byte*)returnAttribute;
-        int nullBitSize = (int)ceil((double)attributeNames.size() / CHAR_BIT);
         r_value+=nullBitSize;
         switch (recordDescriptor[conditionPos].type){
             case TypeReal:
@@ -913,21 +877,16 @@ RC RBFM_ScanIterator::getNextRecord(RID &rid, void *data){
                     
                     if(compOp == EQ_OP){
                         int s1_len = *(int*)r_value;
-                        char* s2 = (char*)value;
-                        char* temp_char = (char*)malloc(sizeof(char) * (s1_len+1));
-                        auto* cur = (byte*)r_value;
-                        cur += sizeof(int);
-                        memcpy(temp_char, r_value+sizeof(int),s1_len);
-                        temp_char[s1_len] = '\0';
-                        if(strcmp(temp_char,s2) == 0){
+                        int s2_len = *(int*)value;
+                        if(s1_len != s2_len) break;
+                        
+                        if(memcmp((byte*)r_value,(byte*)value,sizeof(int)+s1_len) == 0){
                             formatData(data);
                             rid.pageNum = current_rid.pageNum;
                             rid.slotNum = current_rid.slotNum;
                             free(returnAttribute);
-                            free(temp_char);
                             return 0;
                         }
-                        free(temp_char);
                         break;
 
                     }
@@ -953,10 +912,11 @@ RC RBFM_ScanIterator::formatData(void *data){
     int pos = 0;
     for(auto s : attributeNames){
         void* returnAttribute = malloc(PAGE_SIZE);
-        RC res = rbfm->readAttribute(fileHandle,recordDescriptor,current_rid,s,returnAttribute);
+        memset(returnAttribute,0,PAGE_SIZE);
+        rbfm->readAttribute(fileHandle,recordDescriptor,current_rid,s,returnAttribute);
         memset(nullBitIndicator,0,nullBitSize);
         unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
-        if(res == 1){
+        if(*(char*)returnAttribute != (char)0){
             compareBit |= ((unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT));
             *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT))) = compareBit;
             free(returnAttribute);
@@ -998,8 +958,7 @@ RC RBFM_ScanIterator::close(){
     return 0;
 }
 
-RC RecordBasedFileManager::getPageInformation(void* data, FileHandle &fileHandle, unsigned PID, short &numberRecord, short &freeSpace){
-    if(fileHandle.readPage(PID,data) != 0) return -1;
+RC RecordBasedFileManager::getPageInformation(const void* data, unsigned PID, short &numberRecord, short &freeSpace){
     byte* cur = (byte*)data;
     cur += (PAGE_SIZE - sizeof(short) * 2);
     numberRecord = *(short*) cur;
@@ -1103,7 +1062,8 @@ short RecordBasedFileManager::recordLength(const std::vector<Attribute> &recordD
 
     int nullBitSize = (int)ceil((double)recordDescriptor.size() / CHAR_BIT);
 
-    len += (short)nullBitSize;
+    //len += (short)nullBitSize;
+    len += sizeof(short) + recordDescriptor.size() * sizeof(short);
     auto * cur = (char *)data;
 
     cur += nullBitSize;
@@ -1139,7 +1099,140 @@ short RecordBasedFileManager::recordLength(const std::vector<Attribute> &recordD
         }
         pos++;
     }
-    //cout << "Size calculated:" << len << endl;
+    //cout << "length calculated:" << len << endl;
     return (short)len;
 }
 
+
+RC RecordBasedFileManager::encodeData(const void* data, void* returnedData, const std::vector<Attribute> &recordDescriptor){
+    int nullBitSize = (int)ceil((double)recordDescriptor.size() / CHAR_BIT);
+    auto * cur = (char *)data;
+    short attrs_size = (short)recordDescriptor.size();
+    short* attrs_offset = (short*)malloc(sizeof(short)*attrs_size);
+
+    auto * returned_cur = (char *)returnedData;
+    *(short*) returned_cur = attrs_size;
+    returned_cur += sizeof(short) + attrs_size * sizeof(short);
+    cur += nullBitSize;
+
+    unsigned char* nullBitIndicator;
+    nullBitIndicator = (unsigned char *) data;
+    short len = sizeof(short) + attrs_size * sizeof(short);
+
+    int pos = 0;
+    for (auto arr: recordDescriptor) {
+        unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
+        switch (arr.type){
+            case TypeReal:
+                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
+                    attrs_offset[pos] = len;
+                    len += sizeof(float);
+                    cur += sizeof(float);
+                }
+                else attrs_offset[pos] = -1;
+                break;
+            case TypeInt:
+                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
+                    attrs_offset[pos] = len;
+                    len += sizeof(int);
+                    cur += sizeof(int);
+                }
+                else attrs_offset[pos] = -1;
+                break;
+            case TypeVarChar:
+                if (!(compareBit & (unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT))) {
+                    attrs_offset[pos] = len;
+                    int nameLength = *(int *) cur;
+                    len += sizeof(int);
+                    cur += sizeof(int);
+                    cur += nameLength;
+                    len += nameLength;
+                }
+                else attrs_offset[pos] = -1;
+                break;
+        }
+        pos++;
+    }
+    
+    returned_cur = (char *)returnedData;
+    returned_cur += sizeof(short);
+    //cout << "Len encoded:" << len << endl;
+    memcpy(returned_cur,attrs_offset,attrs_size * sizeof(short));
+    returned_cur+= attrs_size * sizeof(short);
+    cur = (char*)data + nullBitSize;
+    memcpy(returned_cur,cur,len - (sizeof(short) + attrs_size * sizeof(short)));
+    free(attrs_offset);
+
+    return 0;
+}
+
+RC RecordBasedFileManager::decodeData(const void* data, void* returnedData, const std::vector<Attribute> &recordDescriptor){
+    int nullBitSize = (int)ceil((double)recordDescriptor.size() / CHAR_BIT);
+    auto * cur = (char *)data;
+    short attrs_size = (short)recordDescriptor.size();
+    short* attrs_offset = (short*)malloc(sizeof(short)*attrs_size);
+    auto * returned_cur = (char *)returnedData;
+    memcpy(attrs_offset, cur+sizeof(short),sizeof(short)*attrs_size);
+    
+    cur += sizeof(short) + attrs_size * sizeof(short);
+    returned_cur += nullBitSize;
+
+    unsigned char* nullBitIndicator;
+    nullBitIndicator = (unsigned char *) returnedData;
+    memset(nullBitIndicator,0,nullBitSize);
+
+    int pos = 0;
+    short len = 0;
+    for (auto arr: recordDescriptor) {
+        
+        switch (arr.type){
+            case TypeReal:
+                if(attrs_offset[pos] != -1){
+                    len = attrs_offset[pos] + sizeof(float);
+                    cur += sizeof(float);
+                }
+                else{
+                    unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
+                    compareBit = compareBit ^ ((unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT));
+                    *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT))) = compareBit;
+                }
+                break;
+            case TypeInt:
+                if(attrs_offset[pos] != -1){
+                    len = attrs_offset[pos] + sizeof(int);
+                    cur += sizeof(int);
+                }
+                else{
+                    unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
+                    compareBit = compareBit ^ ((unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT));
+                    *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT))) = compareBit;
+                }
+                break;
+            case TypeVarChar:
+                if(attrs_offset[pos] != -1){
+                    int nameLength = *(int *) cur;
+                    len = attrs_offset[pos] + sizeof(int);
+                    cur += sizeof(int);
+                    cur += nameLength;
+                    len += nameLength;
+                }
+                else{
+                    unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
+                    compareBit = compareBit ^ ((unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT));
+                    *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT))) = compareBit;
+                }
+                break;
+        }
+        pos++;
+    }
+    if(len > 0) len -= sizeof(short) + attrs_size * sizeof(short);
+    returned_cur = (char *)returnedData;
+    returned_cur += nullBitSize;
+    cur = (char*)data + sizeof(short) + attrs_size * sizeof(short);
+    //cout << "Size calculated:" << len << endl;
+    //cout << "Size calculated:" << attrs_size << endl;
+    if(len > 0)memcpy(returned_cur,cur,len);
+    free(attrs_offset);
+    //cout << "Size calculated:" << len << endl;
+    return 0;
+}

@@ -45,8 +45,6 @@ public:
 
     RC deleteCatalog();
 
-    RC encodeRecord(vector<Attribute> recordDescriptor, void *src, void *dst);
-
     RC initializeCatalog();
 
     RC destroySystemTable();

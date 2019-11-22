@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/rmtest_13.dir/rm/rmtest_13.cc.o"
-  "rmtest_13"
   "rmtest_13.pdb"
+  "rmtest_13"
 )
 
 # Per-language clean rules from dependency scanning.
