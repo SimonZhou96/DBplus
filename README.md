@@ -5,9 +5,6 @@ If you are not using CLion and want to use command line make tool:
 
  - Modify the "CODEROOT" variable in makefile.inc to point to the root
   of your code base if you can't compile the code.
- 
-
-- Implement the extension of Relation Manager (RM) to coordinate data files and the associated indices of the data files.
 
 - Also, implement Query Engine (QE)
 
@@ -17,8 +14,6 @@ If you are not using CLion and want to use command line make tool:
     make clean
     make
     ./qetest_01
-
-   The program should work. But it does nothing until you implement the extension of RM and QE.
 
 - If you want to try CLI:
 
