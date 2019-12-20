@@ -190,6 +190,7 @@ public:
     RC decodeData(const void* data, void* returnedData, const std::vector<Attribute> &recordDescriptor);
     RC getRecordInformation(void *pageData, short recordIndex, short &recordLength, short &recordOffset);
 
+    int keyCompare(const void* key1, const void* key2, AttrType type);
 
 public:
 protected:

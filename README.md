@@ -6,46 +6,35 @@ If you are not using CLion and want to use command line make tool:
  - Modify the "CODEROOT" variable in makefile.inc to point to the root
   of your code base if you can't compile the code.
  
- - Finish the Record-based Files (RBF) Component:
+
+- Implement the extension of Relation Manager (RM) to coordinate data files and the associated indices of the data files.
+
+- Also, implement Query Engine (QE)
+
+
+   Go to folder "qe" and type in:
+
+    make clean
+    make
+    ./qetest_01
+
+   The program should work. But it does nothing until you implement the extension of RM and QE.
+
+- If you want to try CLI:
+
+   Go to folder "cli" and type in:
    
-   Go to folder "rbf" and test in the following order:
-   ```
    make clean
+
    make
-   ./rbftest_update
-   ./rbftest_delete
-   ```
-  
- - and then implement the Relation Manager (RM):
-
-   Go to folder "rm" and test in the following order:
-
-   ```
-   make clean
-   make      
-   ./rmtest_create_tables
-   ./rmtest_00   
-   ./rmtest_01  
-   ./rmtest_02
-   ./rmtest_03
-   ./rmtest_04
-   ./rmtest_05
-   ./rmtest_06
-   ./rmtest_07
-   ./rmtest_08
-   ./rmtest_09
-   ./rmtest_10
-   ./rmtest_11
-   ./rmtest_12
-   ./rmtest_13
-   ./rmtest_13b
-   ./rmtest_14
-   ./rmtest_15
-   ./rmtest_extra_1
-   ./rmtest_extra_2
+   ./cli_example_01
    
-   ```
+   or
+   
+   ./start
+   
+   The program should work. But you need to implement the extension of RM and QE to run this program properly. Note that examples in the cli directory are provided for your convenience. These examples are not the public test cases.
 
-   The program should run. But initially it will generates an error. You are supposed to
-   implement the API of the rest of the methods in rbfm.h and methods in rm.h as explained 
-   in the project description.
+
+- By default you should not change those classes defined in rm/rm.h and qe/qe.h. If you think some changes are really necessary, please contact us first.
+

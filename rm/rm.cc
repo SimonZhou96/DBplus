@@ -374,11 +374,20 @@ RC RelationManager::deleteTable(const std::string &tableName) {
 
     
     /**
+     * 0. delete the corresponding index files
      * 1. delete the records in the System table and System column
      * 2. delete the table file
      * **/
     if(tableName.compare(systemTable) == 0 || tableName.compare(systemColumn) == 0) return -1;
     if (_rbfm->destroyFile(tableName) != 0) return -1;
+
+    std::vector<Attribute> tuple_attrs;
+    getAttributes(tableName,tuple_attrs);
+    IndexManager &ixm = IndexManager::instance();
+    for(unsigned i = 0;i<tuple_attrs.size();i++){
+        destroyIndex(tableName, tuple_attrs[i].name);
+    }
+
     //find the descripter from the system table first
     RM_ScanIterator rm_iter;
     std::vector<string> conditionAttribute;
@@ -406,24 +415,46 @@ RC RelationManager::deleteTable(const std::string &tableName) {
     rm_iter.close();
     free(temp);
     conditionAttribute.clear();
-    if(deleteTuple(systemTable,rid) != 0){
+
+    FileHandle fileHandle1;
+    if (_rbfm->openFile(systemTable, fileHandle1) != 0){
         free(data);
         return -1;
     }
 
+    vector<Attribute> attrs;
+    prepareSystemTableDescriptor(attrs);
 
-    std::vector<Attribute> attrs;
+    if(_rbfm->deleteRecord(fileHandle1, attrs, rid) != 0){
+        free(data);
+        _rbfm->closeFile(fileHandle1);
+        return -1;
+    }
+    _rbfm->closeFile(fileHandle1);
+    attrs.clear();
+
+
+    FileHandle fileHandle2;
     prepareSystemColumnDescriptor(attrs);
     for(Attribute a:attrs) conditionAttribute.push_back(a.name);
     scan(systemColumn,"table-id",EQ_OP,&t_id,conditionAttribute,rm_iter);
     void* r_data = malloc(PAGE_SIZE);
     while(rm_iter.getNextTuple(rid,r_data) != RM_EOF){
-       if(deleteTuple(systemColumn,rid) != 0){
-        free(data);
-        free(r_data);
-        rm_iter.close();
-        return -1;
-       } 
+        if (_rbfm->openFile(systemColumn, fileHandle2) != 0){
+            free(data);
+            free(r_data);
+            rm_iter.close();
+            return -1;
+        }
+
+        if(_rbfm->deleteRecord(fileHandle2, attrs, rid) != 0){
+            free(data);
+            free(r_data);
+            rm_iter.close();
+            return -1;
+        }
+        _rbfm->closeFile(fileHandle2);
+
     }
     free(data);
     free(r_data);
@@ -513,37 +544,154 @@ RC RelationManager::getAttributes(const std::string &tableName, std::vector<Attr
 }
 
 RC RelationManager::insertTuple(const std::string &tableName, const void *data, RID &rid) {
+    if(tableName.compare(systemTable) == 0) return -1;
+    else if(tableName.compare(systemColumn) == 0) return -1;
     FileHandle fileHandle;
     if (_rbfm->openFile(tableName, fileHandle) != 0) return -1;
 
     vector<Attribute> attrs;
     if(getAttributes(tableName, attrs) != 0) return -1;
 
+    //Check the index files infomation first
+    IndexManager &ixm = IndexManager::instance();
+    std::vector<unsigned> index_attrs;
+    std::vector<IXFileHandle> index_fhs;
+    for(unsigned i = 0;i<attrs.size();i++){
+        string indexName = "";
+        indexName.append(tableName).append("_").append(attrs[i].name);
+        
+        IXFileHandle ixFileHandle;
+        if(ixm.openFile(indexName, ixFileHandle) != 0) continue;
+        index_attrs.push_back(i);
+        index_fhs.push_back(ixFileHandle);
+    }
     _rbfm->insertRecord(fileHandle, attrs, data, rid);
     _rbfm->closeFile(fileHandle);
+
+    byte* encodedData = (byte*)malloc(PAGE_SIZE);
+    _rbfm->encodeData(data, encodedData, attrs);
+    for(unsigned i = 0;i<index_fhs.size();i++){
+        IXFileHandle ixFileHandle = index_fhs[i];
+        unsigned index = index_attrs[i];
+
+        short offset = *(short*) (encodedData + sizeof(short) * (index + 1));
+        if(offset != -1){
+            byte* temp = encodedData + offset;
+            ixm.insertEntry(ixFileHandle, attrs[index], temp, rid);
+        }
+        ixm.closeFile(ixFileHandle);
+    }
+
+    free(encodedData);
+
     return 0;
 }
 
 RC RelationManager::deleteTuple(const std::string &tableName, const RID &rid) {
+    if(tableName.compare(systemTable) == 0) return -1;
+    else if(tableName.compare(systemColumn) == 0) return -1;
     FileHandle fileHandle;
     if (_rbfm->openFile(tableName, fileHandle) != 0) return -1;
 
     vector<Attribute> attrs;
     if(getAttributes(tableName, attrs) != 0) return -1;
 
+    //Check the index files infomation first
+    IndexManager &ixm = IndexManager::instance();
+    std::vector<unsigned> index_attrs;
+    std::vector<IXFileHandle> index_fhs;
+    for(unsigned i = 0;i<attrs.size();i++){
+        string indexName = "";
+        indexName.append(tableName).append("_").append(attrs[i].name);
+        
+        IXFileHandle ixFileHandle;
+        if(ixm.openFile(indexName, ixFileHandle) != 0) continue;
+        index_attrs.push_back(i);
+        index_fhs.push_back(ixFileHandle);
+    }
+    void* data = malloc(PAGE_SIZE);
+    readTuple(tableName, rid, data);
+
     _rbfm->deleteRecord(fileHandle, attrs, rid);
     _rbfm->closeFile(fileHandle);
+
+    byte* encodedData = (byte*)malloc(PAGE_SIZE);
+    _rbfm->encodeData(data, encodedData, attrs);
+    for(unsigned i = 0;i<index_fhs.size();i++){
+        IXFileHandle ixFileHandle = index_fhs[i];
+        unsigned index = index_attrs[i];
+        short offset = *(short*) (encodedData + sizeof(short) * (index + 1));
+        if(offset != -1){
+            byte* temp = encodedData + offset;
+            ixm.deleteEntry(ixFileHandle, attrs[index], temp, rid);
+        }
+        ixm.closeFile(ixFileHandle);
+    }
+
+    free(encodedData);
+    free(data);
+
     return 0;
 }
 
 RC RelationManager::updateTuple(const std::string &tableName, const void *data, const RID &rid) {
+    if(tableName.compare(systemTable) == 0) return -1;
+    else if(tableName.compare(systemColumn) == 0) return -1;
     FileHandle fileHandle;
     if (_rbfm->openFile(tableName, fileHandle) != 0) return -1;
 
     vector<Attribute> attrs;
     if(getAttributes(tableName, attrs) != 0) return -1;
+
+    //Check the index files infomation first
+    IndexManager &ixm = IndexManager::instance();
+    std::vector<unsigned> index_attrs;
+    std::vector<IXFileHandle> index_fhs;
+    for(unsigned i = 0;i<attrs.size();i++){
+        string indexName = "";
+        indexName.append(tableName).append("_").append(attrs[i].name);
+        
+        IXFileHandle ixFileHandle;
+        if(ixm.openFile(indexName, ixFileHandle) != 0) continue;
+        index_attrs.push_back(i);
+        index_fhs.push_back(ixFileHandle);
+    }
+
+    //delete old key, insert new key
+    void* old_data = malloc(PAGE_SIZE);
+    byte* old_encoded = (byte*)malloc(PAGE_SIZE);
+    readTuple(tableName, rid, old_data);
+
+    byte* encodedData = (byte*)malloc(PAGE_SIZE);
+    _rbfm->encodeData(old_data, old_encoded, attrs);
+    _rbfm->encodeData(data, encodedData, attrs);
+    for(unsigned i = 0;i<index_fhs.size();i++){
+        IXFileHandle ixFileHandle = index_fhs[i];
+        unsigned index = index_attrs[i];
+        short offset = *(short*) (encodedData + sizeof(short) * (index + 1));
+        short old_offset = *(short*) (old_encoded + sizeof(short) * (index + 1));
+        if(offset != -1){
+            byte* temp = encodedData + offset;
+            ixm.insertEntry(ixFileHandle, attrs[index], temp, rid);
+        }
+
+        if(old_offset != -1){
+            byte* temp = old_encoded + old_offset;
+            ixm.deleteEntry(ixFileHandle, attrs[index], temp, rid);
+
+        }
+        
+
+        ixm.closeFile(ixFileHandle);
+    }
+
     _rbfm->updateRecord(fileHandle, attrs, data, rid);
     _rbfm->closeFile(fileHandle);
+
+    free(old_data);
+    free(old_encoded);
+    free(encodedData);
+
     return 0;
 }
 
@@ -612,6 +760,7 @@ RC RelationManager::addAttribute(const std::string &tableName, const Attribute &
     return -1;
 }
 
+
 RC RelationManager::updateTableNumber(){
     RM_ScanIterator rm_iter;
     std::vector<string> conditionAttribute;
@@ -633,4 +782,94 @@ RC RelationManager::updateTableNumber(){
     return 0;
 }
 
+// QE IX related
+RC RelationManager::createIndex(const std::string &tableName, const std::string &attributeName) {
+    string indexName = "";
+    indexName.append(tableName).append("_").append(attributeName);
+
+    //Get Attribute information first
+    std::vector<Attribute> attrs;
+    getAttributes(tableName, attrs);
+    int index = -1;
+    for(int i = 0;i<(int)attrs.size();i++){
+        if(attrs[i].name.compare(attributeName) == 0){
+            index = i;
+            break;
+        }
+    }
+    if(index == -1) return -1;
+
+    RM_ScanIterator rm_iter;
+    std::vector<string> conditionAttribute;
+    conditionAttribute.push_back(attributeName);
+    void* value = nullptr;
+    if(scan(tableName,"",NO_OP,value,conditionAttribute,rm_iter) != 0 ) return -1;
+    IndexManager &ixm = IndexManager::instance();
+    if(ixm.createFile(indexName) != 0) return -1;
+    RID rid;
+    void* data = malloc(PAGE_SIZE);
+    IXFileHandle ixFileHandle;
+    ixm.openFile(indexName, ixFileHandle);
+    while(rm_iter.getNextTuple(rid,data) != RM_EOF){
+        byte* temp = (byte*)data + 1;
+        RC rc = ixm.insertEntry(ixFileHandle, attrs[index], temp, rid);
+        if(rc != 0){
+            free(data);
+            rm_iter.close();
+            rc = ixm.closeFile(ixFileHandle);
+            return rc;
+
+        }
+    }
+    RC rc = ixm.closeFile(ixFileHandle);
+    free(data);
+    rm_iter.close();
+    return rc;
+
+}
+
+RC RelationManager::destroyIndex(const std::string &tableName, const std::string &attributeName) {
+    IndexManager &ixm = IndexManager::instance();
+    string indexName = "";
+    indexName.append(tableName).append("_").append(attributeName);
+    IXFileHandle ixFileHandle;
+    if(ixm.openFile(indexName, ixFileHandle) != 0) return -1;
+    ixm.closeFile(ixFileHandle);
+    return ixm.destroyFile(indexName);
+}
+
+RC RelationManager::indexScan(const std::string &tableName,
+                              const std::string &attributeName,
+                              const void *lowKey,
+                              const void *highKey,
+                              bool lowKeyInclusive,
+                              bool highKeyInclusive,
+                              RM_IndexScanIterator &rm_IndexScanIterator) {
+
+    rm_IndexScanIterator.ixm = &IndexManager::instance();
+    std::vector<Attribute> descriptor;
+    string indexName = "";
+    indexName.append(tableName).append("_").append(attributeName);
+
+
+    //Get Attribute information first
+    std::vector<Attribute> attrs;
+    getAttributes(tableName, attrs);
+    int index = -1;
+    for(int i = 0;i<(int)attrs.size();i++){
+        if(attrs[i].name.compare(attributeName) == 0){
+            index = i;
+            break;
+        }
+    }
+    if(index == -1) return -1;
+    if(rm_IndexScanIterator.ixm->openFile(indexName, rm_IndexScanIterator.ixFileHandle) != 0) return -1;
+    /*rm_IndexScanIterator.ixm->closeFile(rm_IndexScanIterator.ixFileHandle);
+    destroyIndex(tableName, attributeName);
+    createIndex(tableName, attributeName);
+    if(rm_IndexScanIterator.ixm->openFile(indexName, rm_IndexScanIterator.ixFileHandle) != 0) return -1;*/
+    RC rc = rm_IndexScanIterator.ixm->scan(rm_IndexScanIterator.ixFileHandle,attrs[index],lowKey,highKey,lowKeyInclusive,highKeyInclusive,rm_IndexScanIterator.ix_iter);
+    //rm_IndexScanIterator.ixm->printBtree(rm_IndexScanIterator.ixFileHandle,attrs[index]);
+    return rc;
+}
 

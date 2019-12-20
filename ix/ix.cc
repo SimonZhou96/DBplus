@@ -19,7 +19,13 @@ RC IndexManager::destroyFile(const std::string &fileName) {
 }
 
 RC IndexManager::openFile(const std::string &fileName, IXFileHandle &ixFileHandle) {
-    return _rbfm->openFile(fileName.c_str(), ixFileHandle.fileHandler);
+    RC rc = _rbfm->openFile(fileName.c_str(), ixFileHandle.fileHandler);
+    if(rc != 0) return rc;
+    unsigned readPageCount = 0;
+    unsigned writePageCount = 0;
+    unsigned appendPageCount = 0;
+    ixFileHandle.collectCounterValues(readPageCount, writePageCount, appendPageCount);
+    return rc;
 }
 
 RC IndexManager::closeFile(IXFileHandle &ixFileHandle) {
@@ -83,7 +89,7 @@ RC IndexManager::initialIndexEntriesPage(IXFileHandle &ixFileHandle, void *index
 
     ixFileHandle.appendIxPage(indexPage);
 
-    pageID = ixFileHandle.ixAppendPageCounter;
+    pageID = ixFileHandle.fileHandler.getNumberOfPages()-1;
     return 0;
 }
 
@@ -140,8 +146,8 @@ RC IndexManager::initialDataEntriesPage(IXFileHandle &ixFileHandle, void *dataPa
 
     ixFileHandle.appendIxPage(dataPage);
 
-    pageID = ixFileHandle.ixAppendPageCounter;
-
+    pageID = ixFileHandle.fileHandler.getNumberOfPages()-1;
+    
     return 0;
 }
 
@@ -488,7 +494,7 @@ RC IndexManager::insertIndexEntriesKey(void *page, const Attribute &attribute, c
  * **/
 RC IndexManager::insertEntry(IXFileHandle &ixFileHandle, const Attribute &attribute, const void *key, const RID &rid) {
     // we first decide whether is a first time insert or not, if it is, we first initialize the dummy index
-    if (ixFileHandle.ixAppendPageCounter == 0) {
+    if (ixFileHandle.fileHandler.getNumberOfPages() == 0) {
         // insert the dummy key into the page ZERO
         initialDummyPage(ixFileHandle, attribute);
         // append new page to place the real data entries
@@ -576,7 +582,7 @@ RC IndexManager::getInsertingDataKeySize(const Attribute &attribute, const void 
  * **/
 RC IndexManager::insertDataEntriesKey(void *page, const Attribute &attribute, const void *key, const RID &rid) {
 
-    auto *ptr = (char *) page;
+    //auto *ptr = (char *) page;
     unsigned numberOfKeys;
     unsigned freeSpace;
     unsigned char pageType;
@@ -591,7 +597,7 @@ RC IndexManager::insertDataEntriesKey(void *page, const Attribute &attribute, co
 
     while (start < (int)numberOfKeys) {
 
-        unsigned curEntryLength = *(unsigned *) (metaDataPtr);
+        //unsigned curEntryLength = *(unsigned *) (metaDataPtr);
 
         unsigned curEntryOffset = *(unsigned *) (metaDataPtr + sizeof(unsigned));
 
@@ -726,8 +732,8 @@ RC IndexManager::splitIndexNode(void *page, void *overflowPage, void* returnedKe
     page_ptr = (byte*)page + midKeyOffset;
     byte* midKey = page_ptr;
 
-    unsigned pageID = *(unsigned *)(page_ptr+ midKeyLength - RID_SIZE);
-    unsigned slotID = *(unsigned *)(page_ptr+ midKeyLength - RID_SIZE + sizeof(unsigned));
+    //unsigned pageID = *(unsigned *)(page_ptr+ midKeyLength - RID_SIZE);
+    //unsigned slotID = *(unsigned *)(page_ptr+ midKeyLength - RID_SIZE + sizeof(unsigned));
 
     //move the right part to the overflow page
     int index = mid + 1;
@@ -735,7 +741,7 @@ RC IndexManager::splitIndexNode(void *page, void *overflowPage, void* returnedKe
     page_ptr -= mid*RID_SIZE;
 
     unsigned beforeNumber = numberOfKeys;
-    while(index <= beforeNumber){
+    while(index <= (int)beforeNumber){
         page_ptr -= RID_SIZE;
 
         unsigned nextKeyLength = *(unsigned*)page_ptr;
@@ -750,16 +756,16 @@ RC IndexManager::splitIndexNode(void *page, void *overflowPage, void* returnedKe
         //cout << "key content: " << *(int*)next_ptr << "  left: " << *(PageNum*) tempKey << "  right: " << *(PageNum*)(next_ptr + nextKeyLength) << endl;
 
 
-        RID nextRid;
-        nextRid.pageNum = *(unsigned *)(next_ptr + nextKeyLength - RID_SIZE);
-        nextRid.slotNum = *(unsigned *)(next_ptr + nextKeyLength - RID_SIZE + sizeof(unsigned));
+        //RID nextRid;
+        //nextRid.pageNum = *(unsigned *)(next_ptr + nextKeyLength - RID_SIZE);
+        //nextRid.slotNum = *(unsigned *)(next_ptr + nextKeyLength - RID_SIZE + sizeof(unsigned));
         insertIndexEntriesKey(overflowPage, attribute, tempKey);
         numberOfKeys --;
         //clear the right part of entries
         freeSpace += nextKeyLength+RID_SIZE + sizeof(PageNum);
         memset(tempKey,0,nextKeyLength+sizeof(PageNum));
         memset(page_ptr,0,RID_SIZE);
-        if(index == beforeNumber){
+        if(index == (int)beforeNumber){
             memset((char *)tempKey+nextKeyLength+sizeof(PageNum),0,sizeof(PageNum));
         }
         index++;
@@ -815,7 +821,7 @@ RC IndexManager::splitDataNode(void *page, void *overflowPage, void* returnedKey
     unsigned char pageType;
     unsigned freeSpace;
     unsigned numberOfKeys;
-    void *newRootKey = nullptr;
+    //void *newRootKey = nullptr;
     PageNum nextPagePointer;
     getDataEntriesPageInformation(page,pageType,nextPagePointer,freeSpace,numberOfKeys);
 
@@ -841,7 +847,7 @@ RC IndexManager::splitDataNode(void *page, void *overflowPage, void* returnedKey
     page_ptr = (byte*)page + PAGE_SIZE - sizeof(pType) - NXT_PTR - RID_SIZE;
     page_ptr -= mid*RID_SIZE;
     unsigned beforeNumber = numberOfKeys;
-    while(index <= beforeNumber){
+    while(index <= (int)beforeNumber){
         page_ptr -= sizeof(unsigned)*2;
 
         unsigned nextKeyLength = *(unsigned*)page_ptr;
@@ -961,7 +967,7 @@ RC IndexManager::keyCompare(const Attribute &attribute, const void *key1, const 
     } else {
         unsigned varChar1Length = *(unsigned *) key1;
         char varchar1[varChar1Length + 1];
-        for (int i = 0; i < varChar1Length; i++) {
+        for (unsigned i = 0; i < varChar1Length; i++) {
             varchar1[i] = *((char *)key1 + sizeof(unsigned) + i);
         }
         varchar1[varChar1Length] = '\0';
@@ -970,7 +976,7 @@ RC IndexManager::keyCompare(const Attribute &attribute, const void *key1, const 
 
         unsigned varChar2Length = *(unsigned *) key2;
         char varchar2[varChar2Length + 1];
-        for (int i = 0; i < varChar2Length; i++) {
+        for (unsigned i = 0; i < varChar2Length; i++) {
             varchar2[i] = *((char *)key2 + sizeof(unsigned) + i);
         }
         varchar2[varChar2Length] = '\0';
@@ -1479,6 +1485,7 @@ void IndexManager::printHelper(IndexManager ixm, IXFileHandle &ixFileHandle, con
         unsigned freeSpace;
         unsigned numberOfKeys;
         ixm.getIndexEntriesPageInformation(curPage,pageType,freeSpace,numberOfKeys);
+        if(numberOfKeys == 0) return;
         unsigned curEntryIndex = 0;
 
         cout << '"' << "keys" << '"' << ":" << "[";
@@ -1538,7 +1545,7 @@ void IndexManager::printHelper(IndexManager ixm, IXFileHandle &ixFileHandle, con
         unsigned freeSpace;
         unsigned numberOfKeys;
         ixm.getDataEntriesPageInformation(curPage,pageType,pagePointer,freeSpace,numberOfKeys);
-
+        if(numberOfKeys == 0) return;
         unsigned curEntryIndex = 0;
 
         cout << '"' << "keys" << '"'<< ":" << "[";
@@ -1578,8 +1585,19 @@ void IndexManager::printHelper(IndexManager ixm, IXFileHandle &ixFileHandle, con
                 }
                 lastKey = key;
                 RID curRID;
-                curRID.pageNum = *(unsigned *)(realDataPtr + sizeof(unsigned));
-                curRID.slotNum = *(unsigned *)(realDataPtr + 2 * sizeof(unsigned));
+                if (attribute.type == TypeInt){
+                    curRID.pageNum = *(unsigned *)(realDataPtr + sizeof(unsigned));
+                    curRID.slotNum = *(unsigned *)(realDataPtr + 2 * sizeof(unsigned));
+                }
+                else if (attribute.type == TypeReal){
+                    curRID.pageNum = *(unsigned *)(realDataPtr + sizeof(float));
+                    curRID.slotNum = *(unsigned *)(realDataPtr + sizeof(float) + sizeof(unsigned));
+                }
+                else{
+                    int size = *(int*)realDataPtr;
+                    curRID.pageNum = *(unsigned *)(realDataPtr + sizeof(int) + size);
+                    curRID.slotNum = *(unsigned *)(realDataPtr + sizeof(int) + size + sizeof(unsigned));
+                }
                 ridWithSameKey.push_back(curRID);
                 curEntryIndex ++;
                 continue;
@@ -1646,8 +1664,20 @@ void IndexManager::printHelper(IndexManager ixm, IXFileHandle &ixFileHandle, con
             }
 
             RID curRID;
-            curRID.pageNum = *(unsigned *)(realDataPtr + sizeof(unsigned));
-            curRID.slotNum = *(unsigned *)(realDataPtr + 2 * sizeof(unsigned));
+            if (attribute.type == TypeInt){
+                curRID.pageNum = *(unsigned *)(realDataPtr + sizeof(unsigned));
+                curRID.slotNum = *(unsigned *)(realDataPtr + 2 * sizeof(unsigned));
+            }
+            else if (attribute.type == TypeReal){
+                curRID.pageNum = *(unsigned *)(realDataPtr + sizeof(float));
+                curRID.slotNum = *(unsigned *)(realDataPtr + sizeof(float) + sizeof(unsigned));
+            }
+            else{
+                int size = *(int*)realDataPtr;
+                curRID.pageNum = *(unsigned *)(realDataPtr + sizeof(int) + size);
+                curRID.slotNum = *(unsigned *)(realDataPtr + sizeof(int) + size + sizeof(unsigned));
+            }
+            
             ridWithSameKey.push_back(curRID);
             curEntryIndex ++;
 
@@ -1662,18 +1692,23 @@ void IndexManager::printHelper(IndexManager ixm, IXFileHandle &ixFileHandle, con
             cout << "]" << '"' << "]";
         }
         ridWithSameKey.clear();
+        cout << "}" << endl;
     }
 
     
     free(curPage);
-    while (!pageIDs.empty()) {
-        cout << "," << endl;
+    if(!pageIDs.empty()){
         if (pageType == INDEXENTRIES) cout << '"' << "children" << ":" << "[" << endl;
-        PageNum nextPageID = pageIDs.front();
-        pageIDs.pop();
-        printHelper(ixm,ixFileHandle,attribute,nextPageID);
+        while (!pageIDs.empty()) {
+            
+            PageNum nextPageID = pageIDs.front();
+            pageIDs.pop();
+            printHelper(ixm,ixFileHandle,attribute,nextPageID);
+            if (!pageIDs.empty())cout << "," << endl;
+        }
+        cout << "]} " << '"' << endl;
     }
-    if (pageType == INDEXENTRIES) cout << "]} " << endl;
+    
 
 }
 
@@ -1896,7 +1931,7 @@ IXFileHandle::IXFileHandle() {
 IXFileHandle::~IXFileHandle() {
 }
 
-/** 还没有存进内存里！！！！！！**/
+
 RC IXFileHandle::collectCounterValues(unsigned &readPageCount, unsigned &writePageCount, unsigned &appendPageCount) {
     IXFileHandle::fileHandler.collectCounterValues(ixReadPageCounter,ixWritePageCounter,ixAppendPageCounter);
     //if(ixAppendPageCounter > 0) ixAppendPageCounter--;
@@ -1909,31 +1944,20 @@ RC IXFileHandle::collectCounterValues(unsigned &readPageCount, unsigned &writePa
 
 RC IXFileHandle::appendIxPage(const void *data) {
     if (IXFileHandle::fileHandler.appendPage(data) == -1) return -1;
-    if(IXFileHandle::fileHandler.getNumberOfPages() == 1) IXFileHandle::fileHandler.appendPageCounter--;
-    else IXFileHandle::ixAppendPageCounter++;
-
+    IXFileHandle::ixAppendPageCounter++;
     return 0;
 }
 
 RC IXFileHandle::readIxPage(PageNum pageNum, void *pageData) {
+    //cout << "reading" << pageNum << endl;
     if (IXFileHandle::fileHandler.readPage(pageNum, pageData) == -1) return -1;
-    if(pageNum == 0){
-        IXFileHandle::fileHandler.readPageCounter--;
-    }
-    else{
-        IXFileHandle::ixReadPageCounter++;
-    }
+    IXFileHandle::ixReadPageCounter++;
     return 0;
 }
 
 RC IXFileHandle::writeIxPage(PageNum pageNum, const void *pageData) {
     if (IXFileHandle::fileHandler.writePage(pageNum, pageData) == -1) return -1;
-    if(pageNum == 0){
-        IXFileHandle::fileHandler.writePageCounter--;
-    }
-    else{
-        IXFileHandle::ixWritePageCounter++;
-    }
+    IXFileHandle::ixWritePageCounter++;
 
     return 0;
 }

@@ -1,0 +1,59 @@
+1. Basic information
+Team number (e.g., 01) : 
+#1 Student ID : 76521043
+#1 Student Name : MENG ZHOU
+#2 Student ID : 23122210
+#2 Student Name : XIANGDE ZENG
+OS (bit) : OSX, Ubuntu
+gcc version : 4.2.1, 4.8.5
+
+
+2. Catalog information about Index
+- Show your catalog information about an index (tables, columns). 
+We designed the index table to store every index information of the specific table. Every time we called createIndex(), we insert index file name(file name + attribute name) into our table.
+
+
+3. Block Nested Loop Join (If you have implemented this feature)
+- Describe how your block nested loop join works (especially, how you manage the given buffers.)
+There is a global variable called buffer whose size is PAGE_SIZE * num_pages, so we first load several pages into the buffer by calling loadOuterPage(), and then build the hashmap, the
+key of the hash map is the string format of the data based on the specific attribute, and the value mapped by key is the vector of the pointers that directed to the
+pointer of the record. Every time we called getNextTuple(), we go through until we find the record comes from the right iterator, if the right goes to the end, we reset
+the right Iterator and then call loadOuterPage() to update the buffer and recursively called getNextTuple() until we find the desired right value or the left value reaches the end.
+
+4. Index Nested Loop Join (If you have implemented this feature)
+- Describe how your hash join works.
+We kept global variable to record the current left iterator and right iterator, we first get the index which is based on the attribute we tried to join, and use that index to
+retrieve the data, and we used a global variable to catch up with the current left data. So every time we call getNextTuple(), we called getNextTuple() on right iterator until we
+find the equal record. If we cannot find the equal value or the current right record is larger than the left record(Based on the sorting property of the B+ tree), we reset the right Iterator and
+call getNextTuple() on left, the function will stop until the left reaches the end or we find a satisfying value.
+
+5. Grace Hash Join (If you have implemented this feature)
+- Describe how your grace hash join works (especially, in-memory structure).
+We followed the logic the grape gave: first of all we initialized a grace hash join class to create several partitions and their corresponding RBFM files. Then we initialized two rbfm scan,
+there is a global index to keep track of the current index of the partition file. We load left partition and right partition. Consider R JOIN S and S JOIN R two cases, for saving memory as much as possible,
+we decide to choose to do hash based on which has less number of pages, in our case, left Scan always scan on which has less number of pages. The hash map stores the key of the data and the value is the list of RID(we considered duplicate key here).
+In the getNextTuple() of Grace Hash Join, we continuously scan on right table until we find the value which can be joined with left. and return. Or the left reaches the end. For duplicate key, we maintained a
+global variable called list index, every time we find a value that can be joined, we increase the list index by 1, and then for next iteration, we first checkout whether the list index is greater than the
+size of list of RIDs or not to decide whether there is a duplicate key case or not.
+
+6. Aggregation
+- Describe how your aggregation (basic, group-based hash) works.
+Basic:
+    We set a global variable called noGroupValue, noGroupValue will use valueAggregate() keep track of the current MIN, MAX, SUM values compare with the value we used getNextTuple(),
+    and we calculated the noGroupValue and wrote it to the memory based on the op.
+Group-based hash:
+    We created a hash map to keep track of the aggregate value based on the different group values whose string format are regarded as the keys of the hash map, and we used a
+    count_map to keep track of the number of the data based on the different group, then there is a boolean value to determine whether it has a GROUP BY operation or not.
+    Then we can used valueAggregate() to update the aggregate through every iteration, and add the value to the hash map, the current number of record based on that group into count_map.
+    When the iteration ends. We extracted the value from hash map and count_map and write the expected return value based on difference operation to the memory.
+7. Implementation Detail
+- Have you added your own source file (.cc or .h)?
+    No.
+- Have you implemented any optional features? Then, describe them here.
+    We implemented extra, grace hash join and GROUP BY
+- Other implementation details:
+
+
+6. Other (optional)
+- Freely use this section to tell us about things that are related to the project 4, but not related to the other sections (optional)
+    Thanks TA and professor! Hope we can be lucky on the final.

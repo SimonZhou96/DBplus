@@ -642,7 +642,7 @@ RC RecordBasedFileManager::readAttribute(FileHandle &fileHandle, const std::vect
                 return 0;
             }
             else{
-                memset((byte*)data,1,nullBitSize);
+                memset((byte*)data,1<<7,nullBitSize);
                 free(buffer);
                 free(attrs_offset);
                 return 0;
@@ -721,7 +721,6 @@ RC RBFM_ScanIterator::getNextRecord(RID &rid, void *data){
             continue;
         }
         
-        
         if(compOp == NO_OP){
             formatData(data);
             rid.pageNum = current_rid.pageNum;
@@ -743,161 +742,54 @@ RC RBFM_ScanIterator::getNextRecord(RID &rid, void *data){
             continue;
         }
         r_value+=nullBitSize;
-        switch (recordDescriptor[conditionPos].type){
-            case TypeReal:
-                switch(compOp){
-                    case(EQ_OP):
-                        if(*(float*)r_value == *(float*)value){
-                            formatData(data);
-                            rid = current_rid;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(LT_OP):
-                        if(*(float*)r_value < *(float*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(LE_OP):
-                        if(*(float*)r_value <= *(float*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(GT_OP):
-                        if(*(float*)r_value > *(float*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(GE_OP):
-                        if(*(float*)r_value >= *(float*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(NE_OP):
-                        if(*(float*)r_value != *(float*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(NO_OP):
-                        formatData(data);
-                        rid.pageNum = current_rid.pageNum;
-                        rid.slotNum = current_rid.slotNum;
-                        free(returnAttribute);
-                        return 0;
-                        break;
+        bool isMatch = false;
+        switch(compOp){
+            case(EQ_OP):
+                if(rbfm->keyCompare(r_value,value,recordDescriptor[conditionPos].type) == 0){
+                    isMatch = true;
                 }
                 break;
-            case TypeInt:
-                switch(compOp){
-                    case(EQ_OP):
-                        if(*(int*)r_value == *(int*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(LT_OP):
-                        if(*(int*)r_value < *(int*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(LE_OP):
-                        if(*(int*)r_value <= *(int*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(GT_OP):
-                        if(*(int*)r_value > *(int*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(GE_OP):
-                        if(*(int*)r_value >= *(int*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(NE_OP):
-                        if(*(int*)r_value != *(int*)value){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-                    case(NO_OP):
-                        formatData(data);
-                        rid.pageNum = current_rid.pageNum;
-                        rid.slotNum = current_rid.slotNum;
-                        free(returnAttribute);
-                        return 0;
-                        break;
+            case(LT_OP):
+                if(rbfm->keyCompare(r_value,value,recordDescriptor[conditionPos].type) < 0){
+                    isMatch = true;
                 }
                 break;
-                case TypeVarChar:
-                    
-                    if(compOp == EQ_OP){
-                        int s1_len = *(int*)r_value;
-                        int s2_len = *(int*)value;
-                        if(s1_len != s2_len) break;
-                        
-                        if(memcmp((byte*)r_value,(byte*)value,sizeof(int)+s1_len) == 0){
-                            formatData(data);
-                            rid.pageNum = current_rid.pageNum;
-                            rid.slotNum = current_rid.slotNum;
-                            free(returnAttribute);
-                            return 0;
-                        }
-                        break;
-
-                    }
-                    break;
+            case(LE_OP):
+                if(rbfm->keyCompare(r_value,value,recordDescriptor[conditionPos].type) <= 0){
+                    isMatch = true;
+                }
+                break;
+            case(GT_OP):
+                if(rbfm->keyCompare(r_value,value,recordDescriptor[conditionPos].type) > 0){
+                    isMatch = true;
+                }
+                break;
+            case(GE_OP):
+                if(rbfm->keyCompare(r_value,value,recordDescriptor[conditionPos].type) >= 0){
+                    isMatch = true;
+                }
+                break;
+            case(NE_OP):
+                if(rbfm->keyCompare(r_value,value,recordDescriptor[conditionPos].type) != 0){
+                    isMatch = true;
+                }
+                break;
+            case(NO_OP):
+                isMatch = true;
+                break;
+        }
+        if(isMatch){
+            formatData(data);
+            rid = current_rid;
+            free(returnAttribute);
+            return 0;
         }
         current_rid.slotNum++;
         free(returnAttribute);
         if((short)current_rid.slotNum > totalRecord) return getNextRecord(rid,data);
-
-    }
+        }
     return -1;
+
 
 }
 
@@ -910,13 +802,13 @@ RC RBFM_ScanIterator::formatData(void *data){
     cur += nullBitSize;
     auto* nullBitIndicator = (byte*)data;
     int pos = 0;
+    memset(nullBitIndicator,0,nullBitSize);
     for(auto s : attributeNames){
         void* returnAttribute = malloc(PAGE_SIZE);
         memset(returnAttribute,0,PAGE_SIZE);
         rbfm->readAttribute(fileHandle,recordDescriptor,current_rid,s,returnAttribute);
-        memset(nullBitIndicator,0,nullBitSize);
         unsigned char compareBit = *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT)));
-        if(*(char*)returnAttribute != (char)0){
+        if(*(unsigned char*)returnAttribute != (unsigned char)0){
             compareBit |= ((unsigned) 1 << (unsigned) (CHAR_BIT - 1 - pos % CHAR_BIT));
             *(nullBitIndicator + ((int)floor((double)pos / CHAR_BIT))) = compareBit;
             free(returnAttribute);
@@ -1184,7 +1076,6 @@ RC RecordBasedFileManager::decodeData(const void* data, void* returnedData, cons
     int pos = 0;
     short len = 0;
     for (auto arr: recordDescriptor) {
-        
         switch (arr.type){
             case TypeReal:
                 if(attrs_offset[pos] != -1){
@@ -1234,5 +1125,37 @@ RC RecordBasedFileManager::decodeData(const void* data, void* returnedData, cons
     if(len > 0)memcpy(returned_cur,cur,len);
     free(attrs_offset);
     //cout << "Size calculated:" << len << endl;
+    return 0;
+}
+
+int RecordBasedFileManager::keyCompare(const void* key1, const void* key2, AttrType type){
+    switch(type){
+        case TypeInt:
+            if(*(int*)key1 == *(int*)key2) return 0;
+            else if(*(int*)key1 > *(int*)key2) return 1;
+            else return -1;
+        case TypeReal:
+            if(*(float*)key1 == *(float*)key2) return 0;
+            else if(*(float*)key1 > *(float*)key2) return 1;
+            else return -1;
+        case TypeVarChar:
+            int s1_len = *(int*)key1;
+            int s2_len = *(int*)key2;
+            char* s1 = (char*)malloc(s1_len + 1);
+            char* s2 = (char*)malloc(s2_len + 1);
+            s1[s1_len] = '\0';
+            for (int i = 0; i < s1_len; i++) {
+                s1[i] = *((byte*)key1 + sizeof(int) + i);
+            }
+
+            s2[s2_len] = '\0';
+            for (int i = 0; i < s2_len; i++) {
+                s2[i] = *((byte*)key2 + sizeof(int) + i);
+            }
+            int res = strcmp(s1,s2);
+            free(s1);
+            free(s2);
+            return res;
+    }
     return 0;
 }

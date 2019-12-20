@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "../rbf/rbfm.h"
+#include "../ix/ix.h"
 
 # define RM_EOF (-1)  // end of a scan operator
 
@@ -22,6 +23,24 @@ public:
     RC close() { return rbfm_iter.close(); };
 
     RBFM_ScanIterator rbfm_iter;
+};
+
+// RM_IndexScanIterator is an iterator to go through index entries
+class RM_IndexScanIterator {
+public:
+    RM_IndexScanIterator(){};    // Constructor
+    ~RM_IndexScanIterator(){};    // Destructor
+
+    // "key" follows the same format as in IndexManager::insertEntry()
+    RC getNextEntry(RID &rid, void *key) { return ix_iter.getNextEntry(rid,key); };    // Get next matching entry
+    RC close() { // Terminate index scan
+        ix_iter.close();
+        return ixm->closeFile(ixFileHandle);
+    };                        
+    
+    IX_ScanIterator ix_iter;
+    IXFileHandle ixFileHandle;
+    IndexManager* ixm;
 };
 
 // Relation Manager
@@ -78,14 +97,30 @@ public:
             const std::vector<std::string> &attributeNames, // a list of projected attributes
             RM_ScanIterator &rm_ScanIterator);
 
-// Extra credit work (10 points)
+    // Extra credit work (10 points)
     RC addAttribute(const std::string &tableName, const Attribute &attr);
 
     RC dropAttribute(const std::string &tableName, const std::string &attributeName);
 
+
     RC getAttrbutesLength(vector<Attribute> attrs);
 
     RC updateTableNumber();
+
+    // QE IX related
+    RC createIndex(const std::string &tableName, const std::string &attributeName);
+
+    RC destroyIndex(const std::string &tableName, const std::string &attributeName);
+
+    // indexScan returns an iterator to allow the caller to go through qualified entries in index
+    RC indexScan(const std::string &tableName,
+                 const std::string &attributeName,
+                 const void *lowKey,
+                 const void *highKey,
+                 bool lowKeyInclusive,
+                 bool highKeyInclusive,
+                 RM_IndexScanIterator &rm_IndexScanIterator);
+
 
 protected:
     RelationManager();                                                  // Prevent construction
