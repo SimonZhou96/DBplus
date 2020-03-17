@@ -1,4 +1,7 @@
 # DB plus --- A Customized Bottom-up Database Management System
+
+Author: Simon Zhou, Xander Zeng
+
 By default you should not change those functions of pre-defined in the given .h files.
 If you think some changes are really necessary, please contact us first.
 
