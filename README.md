@@ -29,7 +29,7 @@ If you are not using CLion and want to use command line make tool:
    
    ./start
    
-   The program should work. But you need to implement the extension of RM and QE to run this program properly. Note that examples in the cli directory are provided for your convenience. These examples are not the public test cases.
+   The program should work. But you need to implement the extension of RM and QE to run this program properly. Note that examples in the cli directory are provided for your convenience. These examples are not the other test cases' purpose.
 
 
 - By default you should not change those classes defined in rm/rm.h and qe/qe.h. If you think some changes are really necessary, please contact us first.
