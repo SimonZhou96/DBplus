@@ -1,4 +1,6 @@
-# DB plus --- A Customized Bottom-up Database Management System
+## DB plus --- A Customized Bottom-up Database Management System
+
+***Remember, you can quit our sql program after enjoying it, but the memory will last forever in your mind:)***
 
 Author: Simon Zhou, Xander Zeng
 
@@ -14,6 +16,8 @@ If you think some changes are really necessary, please contact us first.
 ### Commands of our sql sentences
 Show the commands that our sql supports using help, some of the functions we implemented are listed below. You can find yourself!!
 
+***Below is the documentation you can have !!!!***
+![游戏界面1](https://github.com/SimonZhou96/DBplus/blob/master/Images/Help.png)
 The following ****required**** functionality is complete:
 
 * [x] Insert, Delete, Update record
