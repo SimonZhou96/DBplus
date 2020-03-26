@@ -24,6 +24,7 @@ The following ****required**** functionality is complete:
 * [x] Insert, Drop table
 * [x] Insert, Drop Index
 * [x] Select
+* [x] Projection
 * [x] JOIN
   * [x] Index Nested Loop Join
   * [x] Grace Hash Based Join
